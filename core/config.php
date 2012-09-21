@@ -31,7 +31,7 @@ $scrollback['1'][] = "Leave blank for no password.";
 drawwindow(1);
 $in = trim(fgets(STDIN));
 if ($in != "") {
-	$config[] = "address=".$in;
+	$config[] = "password=".$in;
 }
 
 $scrollback['1'][] = "Please wait while your configuration is saved...";

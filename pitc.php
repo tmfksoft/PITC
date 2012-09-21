@@ -18,7 +18,12 @@ $unsupported = array(
 'Darwin',
 ''
 );
-$domain = "I.am.Cheese.us";
+if ($argv[1] == "-a") {
+	$autoconnect = true;
+}
+else {
+	$autoconnect = false;
+}
 /* Handle being terminated */
 if (PHP_OS == "Linux") {
 	// Not MAC OSX? Signals!
@@ -27,8 +32,15 @@ if (PHP_OS == "Linux") {
 	pcntl_signal(SIGHUP, "signal_handler");
 	pcntl_signal(SIGUSR1, "signal_handler");
 }
-$shell_cols = exec('tput cols');
-$shell_rows = exec('tput lines');
+
+if (!isset($_SERVER['OS']) != "Windows_NT") {
+	$shell_cols = exec('tput cols');
+	$shell_rows = exec('tput lines');
+}
+else {
+	$shell_cols = "80";
+	$shell_rows = "24";
+}
 
 // Init some Variables.
 $version = "1.0";
@@ -133,7 +145,7 @@ while (1) {
 		drawWindow($active);
 	}
 	*/
-	$text = explode(" ",trim(fgets(STDOUT)));
+	$text = explode(" ",trim(fgets(STDIN)));
 
 	$cmd = strtolower($text[0]);
 	
@@ -309,7 +321,11 @@ while (1) {
 		}
 		
 	}
-	else if ($cmd == "/connect") {
+	else if ($cmd == "/connect" || $autoconnect == true) {
+		if ($autoconnect) {
+			$scrollback[$active][] = " = Auto connecting to IRC! =";
+			$autoconnect = false;
+		}
 		if (!isset($text[1])) {
 			$scrollback[$active][] = " = Connecting to default server (".$server['address'].") =";
 			$address = $server['address'];
@@ -838,8 +854,14 @@ function drawWindow($window,$input = true) {
 	}
 	
 	$data = "";
+	if (!isset($_SERVER['OS']) != "Windows_NT") {
 	$shell_cols = exec('tput cols');
 	$shell_rows = exec('tput lines');
+	}
+	else {
+		$shell_cols = "80";
+		$shell_rows = "24";
+	}
 	// Cater for overspill!
 	$x = 0;
 	$spill = 0;
