@@ -126,6 +126,10 @@ if ($latest > $version) {
 		unset($scripts);
 	}
 	drawWindow($active);
+	if ($_SERVER['TERM'] == "screen") {
+		$scrollback[0][] = " = You are running on SCREEN! Just thought you may want to know that! =";
+		drawWindow($active);
+	}
 while (1) {
 	if (isset($windows[$active])) {
 		if (!isset($scroll)) { $scroll = $scrollback; }
@@ -139,6 +143,26 @@ while (1) {
 		$args = array(); // Empty for now
 		call_user_func($api_tick[$x],$args);
 		$x++;
+	}
+	if ($_SERVER['TERM'] == "screen") {
+		$screen_d = shell_exec("screen -ls");
+		$screen_d = explode("\n",$screen_d);
+		$x = 0;
+		while ($x != count($screen_d)) {
+			$data = explode(" ",$screen_d[$x]);
+			if ($data[0] == $_SERVER['STY']) {
+				if ($data[2] == "(Detached)") {
+					if (isset($server['screen_away']) && $server['screen_away'] == "true") {
+						if (isset($sid)) {
+							fputs($sid,"NICK :".$cnick."[Away]\n");
+							fputs($sid,"AWAY :I'm away. Auto away due to SCREEN being detatched.\n");
+							$scrollback[0][] = " = Screen disconnection detected! =";
+						}
+					}
+				}
+			}
+			$x++;
+		}
 	}
 	/*
 	if ($shell_cols != exec('tput cols') || $shell_rows != exec('tput lines')) {
@@ -402,6 +426,26 @@ while (1) {
 						$message = implode(" ",$message);
 						fputs($sid,"PRIVMSG ".$target." :".$message."\n");
 						$scrollback[$active][] = $target." -> ".$message;
+					}
+				}
+				else if ($command == "amsg") {
+					// Send a message!
+					if (!isset($text[1])) {
+						$scrollback[$active][] = " Usage: /amsg Message";
+					}
+					else {
+						$message = array_slice($text, 1);
+						$message = implode(" ",$message);
+						$x = 0;
+						while ($x != key($windows)) {
+							if (isset($windows[$x])) {
+								if ($windows[$x][0] == "#") {									
+									fputs($sid,"PRIVMSG ".$windows[$x]." :".$message."\n");
+									$scrollback[$x][] = " <.".$cnick."> ".$message;
+								}
+							}
+							$x++;
+						}
 					}
 				}
 				else if ($command == "notice") {
