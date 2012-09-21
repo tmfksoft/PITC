@@ -1,0 +1,40 @@
+<?php
+$api->addCommand("log","save_log");
+function save_log($irc) {
+	global $api,$windows,$scrollback;
+	if (isset($irc['1'])) {
+		if (is_numeric($irc['1'])) {
+			if (isset($windows[$irc['1']])) {
+				$cname = $windows[$irc['1']];
+				$id = $irc['1'];
+			}
+			else {
+				$api->echo(" = No such window! =");
+			}
+		}
+		else {
+			$id = getWid($irc['1']);
+			if (isset($windows[$id])) {
+				$cname = $irc['1'];
+			}
+			else {
+				$api->echo(" = No such window! =");
+			}
+		}
+		if (isset($id)) {
+			$api->echo("Saving log of {$cname} to ".$cname.".log");
+			$log = implode("\n",$scrollback[$id]);
+			file_put_contents($cname.".log",$log);
+			if (file_exists($cname.".log")) {
+				$api->echo("Saved log of {$cname} to ".$cname.".log");
+			}
+			else {
+				$api->echo("Error Saving log of {$cname} to ".$cname.".log!");
+			}
+		}
+	}
+	else {
+		$api->echo("Usage: /log ID/Name");
+	}
+}
+?>
