@@ -82,6 +82,7 @@ $_PITC['nick'] = $cnick;
 $_PITC['altnick'] = $server['altnick'];
 $_PITC['network'] = false;
 $_PITC['server'] = false;
+$_PITC['address'] = false;
 
 $scrollback['0'][] = " = Checking latest version. =";
 drawWindow(0,false);
@@ -317,8 +318,8 @@ while (1) {
 			$scrollback[$active][] = " = Connecting to ".$text[1];
 			$address = $text[1];
 		}
-		$address = explode(":",$address);
 		$_PITC['address'] = $address[0];
+		$address = explode(":",$address);
 		if (isset($address[1]) && is_numeric($address[1])) { $port = $address[1]; }
 		else { $port = 6667; }
 		if (isset($text[2])) { $password = $text[2]; } else { if (isset($server['password'])) { $password = $server['password']; } else { $password = false; } }
@@ -631,6 +632,20 @@ while (1) {
 			else if ($irc_data[0] == "PING") {
 				// Do nothing.
 			}
+			else if ($irc_data[0] == "ERROR") {
+				// Lost connection!
+				$message = array_slice($irc_data,1);
+				$message = substr(implode(" ",$message),1);
+				$scrollback[0][] = $colors->getColoredString(" = ".$message." =","blue");
+				$x = 0;
+				while ($x != key($scrollback)) {
+					if (isset($scrollback[$x])) {
+						$scrollback[$x][] = $colors->getColoredString(" = Disconnected from IRC! Use /connect ".$_PITC['address']." to reconnect. =","blue");
+					}
+					$x++;
+				}
+				unset($sid);
+			}
 			else if ($irc_data[1] == "NOTICE") {
 				// Got Notice!
 				$dest = $irc_data[2];
@@ -666,6 +681,12 @@ while (1) {
 				$message = array_slice($irc_data, 4);
 				$message = substr(implode(" ",$message),1);
 				$scrollback[0][] = strtoupper($irc_data[3])." ".$message;
+			}
+			else if ($irc_data[1] == "404") {
+				// 3 - chan
+				$message = array_slice($irc_data, 4);
+				$message = substr(implode(" ",$message),1);
+				$scrollback[getWid($irc_data['3'])][] = $colors->getColoredString(" = ".$message." =","light_red");
 			}
 			else if ($irc_data[1] == "TOPIC") {
 				$chan = $irc_data[2];
