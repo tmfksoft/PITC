@@ -33,7 +33,7 @@ if (PHP_OS == "Linux") {
 	pcntl_signal(SIGUSR1, "signal_handler");
 }
 
-if (!isset($_SERVER['OS']) != "Windows_NT") {
+if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN') {
 	$shell_cols = exec('tput cols');
 	$shell_rows = exec('tput lines');
 }
@@ -854,9 +854,9 @@ function drawWindow($window,$input = true) {
 	}
 	
 	$data = "";
-	if (!isset($_SERVER['OS']) != "Windows_NT") {
-	$shell_cols = exec('tput cols');
-	$shell_rows = exec('tput lines');
+	if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN') {
+		$shell_cols = exec('tput cols');
+		$shell_rows = exec('tput lines');
 	}
 	else {
 		$shell_cols = "80";
