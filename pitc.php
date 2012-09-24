@@ -187,11 +187,12 @@ while (1) {
 			}
 			$scrollback = array($scrollback['0']);
 			$windows = array("Status");
-			$scrollback['0'][] = " = Disconnected use /connect to reconnect to ".$server['address']." =";
+			$scrollback['0'][] = " = Disconnected use /connect to reconnect to ".$_PITC['address']." =";
 			$cnick = $server['nick'];
 			$active = 0;
 			fclose($sid);
 			unset($sid);
+			$_PITC['address'] = false;
 		}
 		else {
 			$scrollback['0'][] = " = You're not connected to IRC! Use /exit to close the client! =";
@@ -358,7 +359,7 @@ while (1) {
 			$scrollback[$active][] = " = Connecting to ".$text[1];
 			$address = $text[1];
 		}
-		$_PITC['address'] = $address[0];
+		$_PITC['address'] = $address;
 		$address = explode(":",$address);
 		if (isset($address[1]) && is_numeric($address[1])) { $port = $address[1]; }
 		else { $port = 6667; }
