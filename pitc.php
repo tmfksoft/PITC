@@ -1244,6 +1244,20 @@ class pitcapi {
 			$scrollback[getWid($channel)][] = " <".$cnick."> ".$text;
 		}
 	}
+	public function notice($channel = false,$text = false) {
+		global $scrollback;
+		if (!$channel) {
+			$scrollback['0'][] = " ERROR. Missing TEXT in function NOTICE";
+		}
+		else if (!$text) {
+			$scrollback['0'][] = " ERROR. Missing TEXT in function NOTICE";
+		}
+		else {
+			global $sid,$cnick;
+			fputs($sid,"NOTICE ".$channel." :".$text."\n");
+			$scrollback[getWid($channel)][] = " -".$cnick."- -> ".$text;
+		}
+	}
 	public function action($channel = false,$text = false) {
 		global $scrollback, $colors;
 		if (!$channel) {
