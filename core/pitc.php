@@ -104,16 +104,20 @@ if ($latest > $version) {
 	$colors = new Colors(); // Part of Colours Script
 	// Load auto scripts.
 	if (file_exists("scripts/autoload")) {
-		$scripts = explode("\n",file_get_contents("../scripts/autoload"));
-		$x = 0;
-		while ($x != count($scripts)) {
+		$scripts = explode("\n",file_get_contents($_SERVER['PWD']."/scripts/autoload"));
+		for ($x=0;$x != count($scripts);$x++) {
 			if ($scripts[$x][0] != ";") {
-				include_once("../scripts/".$scripts[$x]);
+				$script = $_SERVER['PWD']."/scripts/".trim($scripts[$x]);
+				if (file_exists($script)) {
+					include_once($script);
+				}
+				else {
+					$scrollback[0][] = " = ERROR Automagically loading '{$scripts[$x]}' no such file! =";
+				}
 				drawWindow($active);
 			}
-			$x++;
 		}
-		unset($scripts);
+		//unset($scripts);
 	}
 	drawWindow($active);
 	if ($_SERVER['TERM'] == "screen") {
@@ -230,8 +234,8 @@ while (1) {
 		// Clear Active Scrollback
 		if (isset($text[1])) {
 			// Check for file
-			if (file_exists("../".$text[1])) {
-				include_once("../".$text[1]);
+			if (file_exists($_SERVER['PWD']."/".$text[1])) {
+				include_once($_SERVER['PWD']."/".$text[1]);
 				// We trust the script will do a log to say its loaded.
 				drawWindow($active);
 			}
