@@ -582,7 +582,7 @@ while (1) {
 						$isctcp = true;
 						// CTCP API
 						$args = array();
-						$args[] = strtolower($win);
+						$args[] = strtolower($source);
 						$args[] = $ctcp;
 						$x = 0;
 						while ($x != count($api_ctcps)) {
