@@ -56,7 +56,7 @@ $windows = array("Status");
 $scrollback['0'] = array(" = Status window. =");
 $text = "";
 
-include("core/config.php");
+include("config.php");
 
 if (!file_exists("config.cfg")) {
 	stream_set_blocking(STDIN, 1);
@@ -66,17 +66,7 @@ if (!file_exists("config.cfg")) {
 }
 
 // Load the config..
-if (file_exists("config.cfg")) {
-	$config = explode("\n",file_get_contents("config.cfg"));
-	$x = 0;
-	while($x != count($config)) {
-		$data = explode("=",$config[$x]);
-		$server[$data[0]] = $data[1];
-		$x++;
-	}
-	unset($x,$data);
-	$cnick = $server['nick'];
-}
+$_CONFIG = load_config();
 
 // Scripting interface/api
 $api_commands = array();
@@ -91,7 +81,7 @@ $api_raw = array();
 $_PITC = array();
 
 $_PITC['nick'] = $cnick;
-$_PITC['altnick'] = $server['altnick'];
+$_PITC['altnick'] = $_CONFIG['altnick'];
 $_PITC['network'] = false;
 $_PITC['server'] = false;
 $_PITC['address'] = false;
@@ -110,15 +100,15 @@ if ($latest > $version) {
 	// Init our API
 	$api = new pitcapi();
 	// Load any core scripts.
-	include("core/colours.php");
+	include("colours.php");
 	$colors = new Colors(); // Part of Colours Script
 	// Load auto scripts.
 	if (file_exists("scripts/autoload")) {
-		$scripts = explode("\n",file_get_contents("scripts/autoload"));
+		$scripts = explode("\n",file_get_contents("../scripts/autoload"));
 		$x = 0;
 		while ($x != count($scripts)) {
 			if ($scripts[$x][0] != ";") {
-				include_once("scripts/".$scripts[$x]);
+				include_once("../scripts/".$scripts[$x]);
 				drawWindow($active);
 			}
 			$x++;
@@ -152,7 +142,7 @@ while (1) {
 			$data = explode(" ",$screen_d[$x]);
 			if ($data[0] == $_SERVER['STY']) {
 				if ($data[2] == "(Detached)") {
-					if (isset($server['screen_away']) && $server['screen_away'] == "true") {
+					if (isset($_CONFIG['screen_away']) && $_CONFIG['screen_away'] == "true") {
 						if (isset($sid)) {
 							fputs($sid,"NICK :".$cnick."[Away]\n");
 							fputs($sid,"AWAY :I'm away. Auto away due to SCREEN being detatched.\n");
@@ -183,12 +173,17 @@ while (1) {
 				fputs($sid,"QUIT :".$qmsg."\n");
 			}
 			else {
-				fputs($sid,"QUIT :Leaving...\n");
+				if (isset($_CONFIG['quit'])) {
+					fputs($sid,"QUIT :{$_CONFIG['quit']}\n");
+				}
+				else {
+					fputs($sid,"QUIT :Goodbye! For now!\n");
+				}
 			}
 			$scrollback = array($scrollback['0']);
 			$windows = array("Status");
 			$scrollback['0'][] = " = Disconnected use /connect to reconnect to ".$_PITC['address']." =";
-			$cnick = $server['nick'];
+			$cnick = $_CONFIG['nick'];
 			$active = 0;
 			fclose($sid);
 			unset($sid);
@@ -200,7 +195,12 @@ while (1) {
 	}
 	else if ($cmd == "/exit") {
 		if (isset($sid)) {
-			fputs($sid,"QUIT :Leaving...\n");
+			if (isset($_CONFIG['quit'])) {
+				fputs($sid,"QUIT :{$_CONFIG['quit']}\n");
+			}
+			else {
+				fputs($sid,"QUIT :Goodbye! For now!\n");
+			}
 		}
 		die();
 	}
@@ -210,8 +210,8 @@ while (1) {
 	else if ($cmd == "/nick") {
 		if (isset($text[1])) {
 			if (!isset($sid)) {
-				$server['nick'] = $text[1];
-				$cnick = $server['nick'];
+				$_CONFIG['nick'] = $text[1];
+				$cnick = $_CONFIG['nick'];
 				$scrollback['0'][] = " = Nick changed to ".$text[1]." =";
 			}
 			else {
@@ -230,8 +230,8 @@ while (1) {
 		// Clear Active Scrollback
 		if (isset($text[1])) {
 			// Check for file
-			if (file_exists($text[1])) {
-				include_once($text[1]);
+			if (file_exists("../".$text[1])) {
+				include_once("../".$text[1]);
 				// We trust the script will do a log to say its loaded.
 				drawWindow($active);
 			}
@@ -314,6 +314,7 @@ while (1) {
 			stream_set_blocking(STDIN,1);
 			run_config();
 			stream_set_blocking(STDIN,0);
+			$_CONFIG = load_config();
 		}
 	}
 	else if ($cmd == "/close" || $cmd == "/part") {
@@ -352,8 +353,8 @@ while (1) {
 			$autoconnect = false;
 		}
 		if (!isset($text[1])) {
-			$scrollback[$active][] = " = Connecting to default server (".$server['address'].") =";
-			$address = $server['address'];
+			$scrollback[$active][] = " = Connecting to default server (".$_CONFIG['address'].") =";
+			$address = $_CONFIG['address'];
 		}
 		else {
 			$scrollback[$active][] = " = Connecting to ".$text[1];
@@ -363,10 +364,10 @@ while (1) {
 		$address = explode(":",$address);
 		if (isset($address[1]) && is_numeric($address[1])) { $port = $address[1]; }
 		else { $port = 6667; }
-		if (isset($text[2])) { $password = $text[2]; } else { if (isset($server['password'])) { $password = $server['password']; } else { $password = false; } }
+		if (isset($text[2])) { $password = $text[2]; } else { if (isset($_CONFIG['password'])) { $password = $_CONFIG['password']; } else { $password = false; } }
 		$ssl = false;
 		if ($port[0] == "+") { $ssl = true; }
-		$sid = connect($server['nick'],$address[0],$port,$ssl,$password);
+		$sid = connect($_CONFIG['nick'],$address[0],$port,$ssl,$password);
 		stream_set_blocking($sid, 0);
 		if (!$sid) {
 			$scrollback[$active][] = "Error connecting to IRC Server.";
@@ -646,7 +647,7 @@ while (1) {
 					if (!$isctcp) {
 						// Message!
 						// Check for highlight!
-						//$scrollback[$wid][] = $cnick." ".$server['nick']." ".stripos($message,$cnick)." ".stripos($message,$server['nick']); // H/L Debug
+						//$scrollback[$wid][] = $cnick." ".$_CONFIG['nick']." ".stripos($message,$cnick)." ".stripos($message,$_CONFIG['nick']); // H/L Debug
 						if (isHighlight($message,$cnick)) {
 							// Highlight!
 							$scrollback[$wid][] = $colors->getColoredString(" <".$source."> ".$message,"yellow");
@@ -887,7 +888,7 @@ while (1) {
 
 function drawWindow($window,$input = true) {
 	// Lets draw the contents of the window... Fun
-	global $windows,$scrollback,$text,$colors,$sid,$server,$cnick;
+	global $windows,$scrollback,$text,$colors,$sid,$_CONFIG,$cnick;
 	
 	if (!isset($windows[$window])) {
 		var_dump($windows);
@@ -981,13 +982,13 @@ function signal_handler($signal) {
 }
 
 function connect($nick,$address,$port,$ssl = false,$password = false) {
-	global $server,$domain;
+	global $_CONFIG,$domain;
 	if ($ssl) { $address = "ssl://".$address; }
 	$fp = fsockopen($address,$port, $errno, $errstr, 30);
 	if ($fp) {
 		if (!fputs($fp,"NICK ".$nick."\n")) { die("ERROR WRITING NICK"); }
-		$ed = explode("@",$server['username']);
-        if (!fputs($fp,'USER '.$ed[0].' "'.$ed[1].'" "'.$address.'" :'.$server['realname'].chr(10))) { die("ERROR WRITING USER"); }
+		$ed = explode("@",$_CONFIG['username']);
+        if (!fputs($fp,'USER '.$ed[0].' "'.$ed[1].'" "'.$address.'" :'.$_CONFIG['realname'].chr(10))) { die("ERROR WRITING USER"); }
 		if ($password) { if (!fputs($fp,"PASS :".$password."\n")) { die("ERROR WRITING PASS"); } }
 		return $fp;
 	}
@@ -996,7 +997,7 @@ function connect($nick,$address,$port,$ssl = false,$password = false) {
 	}
 }
 function parse($rid) {
-	global $scrollback,$active,$server,$cnick;
+	global $scrollback,$active,$_CONFIG,$cnick;
 	//echo "Handling bot with RID ".$rid."\n";
 	if ($data = fgets($rid)) {
 		$data = trim($data);
@@ -1011,7 +1012,7 @@ function parse($rid) {
 		else if ($ex[1] == "433") {
 			// Nick in use.
 			$scrollback['0'][] = "Nick in use. Changing to alternate nick.";
-			$cnick = $server['altnick'];
+			$cnick = $_CONFIG['altnick'];
 			fputs($rid,"NICK :".$cnick."\n");
 		}
 	}
@@ -1309,7 +1310,7 @@ class pitcapi {
 				fputs($sid,"NICK :".$nick."\n");
 			}
 			else {
-				$server['nick'] = $nick;
+				$_CONFIG['nick'] = $nick;
 			}
 		}
 	}
