@@ -59,7 +59,8 @@ PITC API - Commands
 * [X] - Add CHECKWINDOW command
 * [#] - Add MODE command
 * [_] - Add TOPIC command
-* [_] - Add CTCP command
+* [X] - Add CTCP command
+* [X] - Add CTCPREPLY command
 
 #### You can use the RAW command to imitate unimplemented commands.
 

@@ -1354,6 +1354,33 @@ class pitcapi {
 			}
 		}
 	}
+	public function ctcp($nick = false,$ctcp = false) {
+		global $sid,$scrollback;
+		if (!$nick) {
+			$scrollback['0'][] = " ERROR. Missing NICK in function CTCP";
+		}
+		else if (!$ctcp) {
+			$scrollback['0'][] = " ERROR. Missing CTCP in function CTCP";
+		}
+		else {
+			ctcp($nick,$ctcp);
+		}
+	}
+	public function ctcpreply($nick = false,$ctcp = false,$text = false) {
+		global $sid,$scrollback;
+		if (!$nick) {
+			$scrollback['0'][] = " ERROR. Missing NICK in function CTCPREPLY";
+		}
+		else if (!$ctcp) {
+			$scrollback['0'][] = " ERROR. Missing CTCP in function CTCPREPLY";
+		}
+		else if (!$text) {
+			$scrollback['0'][] = " ERROR. Missing TEXT in function CTCPREPLY";
+		}
+		else {
+			ctcpreply($nick,$ctcp,$text);
+		}
+	}
 	// Window Control
 	public function addWindow($name) {
 		global $windows,$userlist,$scrollback,$active;
