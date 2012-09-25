@@ -3,21 +3,21 @@
 ========================
 
 - Key
-* [ ] - To Do.
+* [_] - To Do.
 * [X] - Done.
 * [%] - In Progress / Researching
 * [O] - Unable to implement for certain reasons, see comment.
 
 General
 -------
-* [ ] - Add Mutliserver.
+* [_] - Add Mutliserver.
 * [%] - Allow scripts to be unloaded.
-* [ ] - IRC Color Parsing
-* [ ] - Add SCREEN support
+* [_] - IRC Color Parsing
+* [_] - Add SCREEN support
 
 Bugs
 ----
-* [ ] - Fix Screen bugs
+* [_] - Fix Screen bugs
 * [%] - Fix nick bug where it changes to your alternate nick if the nick us in use WHILE connected.
 
 PITC API - Handlers
@@ -28,18 +28,18 @@ PITC API - Handlers
 * [X] - Add CTCP handler
 * [X] - Add JOIN handler
 * [X] - Add PART handler
-* [ ] - Add NOTICE handler
-* [ ] - Add MODE handler
-* [ ] - Add NICK handler
-* [ ] - Add KICK handler
-* [ ] - Add TOPIC Handler
+* [_] - Add NOTICE handler
+* [_] - Add MODE handler
+* [_] - Add NICK handler
+* [_] - Add KICK handler
+* [_] - Add TOPIC Handler
 * [X] - Add CONNECT handler
-* [ ] - Add LOAD handler (Script Loaded)
-* [ ] - Add START handler (Client Loaded)
-* [ ] - Add DISCONNECT handler
+* [_] - Add LOAD handler (Script Loaded)
+* [_] - Add START handler (Client Loaded)
+* [_] - Add DISCONNECT handler
 * [X] - Add RAW handler
-* [ ] - Add WHOIS handler
-* [ ] - Add AWAY handler
+* [_] - Add WHOIS handler
+* [_] - Add AWAY handler
 * [X] - Add TICK handler (When the client ticks over once)
 
 PITC API - Commands
@@ -57,10 +57,11 @@ PITC API - Commands
 * [X] - Add ADDWINDOW command
 * [X] - Add DELWINDOW command
 * [X] - Add CHECKWINDOW command
-* [ ] - Add MODE command
-* [ ] - Add TOPIC command
-* [ ] - Add CTCP command
-You can use the RAW command to imitate unimplemented commands.
+* [_] - Add MODE command
+* [_] - Add TOPIC command
+* [_] - Add CTCP command
+
+# You can use the RAW command to imitate unimplemented commands.
 
 PITC API - Commands - Formatting
 --------------------------------
@@ -68,4 +69,4 @@ PITC API - Commands - Formatting
 * [X] - Add COLOUR/COLOR formatting
 * [X] - Add ITALIC formatting
 
-If you have any extra ideas for the API or General Client let me know
+# If you have any extra ideas for the API or General Client let me know
