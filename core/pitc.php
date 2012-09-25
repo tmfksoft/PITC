@@ -22,16 +22,12 @@ else {
 	$autoconnect = false;
 }
 /* Handle being terminated */
-if (PHP_OS !== "Darwin") {
+if (function_exists('pcntl_signal')) {
 	/*
 	 * Mac OS X (darwin) doesn't be default come with the pcntl module bundled
-	 * with it's PHP install.  There's not much that can be done about that at this
-	 * point.
-<<<<<<< HEAD
+	 * with it's PHP install.
+	 * Load it to take advantage of Signal Features.
 	*/
-=======
-	 */
->>>>>>> a665258ac0705f1139e8ffba6f75783fab998ea6
 
 	pcntl_signal(SIGTERM, "signal_handler");
 	pcntl_signal(SIGINT, "signal_handler");
@@ -62,7 +58,12 @@ $windows = array("Status");
 $scrollback['0'] = array(" = Status window. =");
 $text = "";
 
-include("config.php");
+if (file_exists("config.php")) {
+	include("config.php");
+}
+else {
+	die("Missing core file config.php, Did you extract ALL files?");
+}
 
 if (!file_exists($_SERVER['PWD']."/core/config.cfg")) {
 	stream_set_blocking(STDIN, 1);
