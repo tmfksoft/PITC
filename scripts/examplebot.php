@@ -55,8 +55,8 @@ function pingbot_mycommand($args) {
 }
 function pingbot_text($args) {
 	global $api;
-	$chan = $args[1];
-	$message = explode(" ",$args[2]);
+	$chan = $args['channel'];
+	$message = explode(" ",$args['text']); // You can use text_array and drop the explode if you wanted to.
 	if (strtolower($message[0]) == "@ping") {
 		$api->msg($chan,"PONG!");
 	}
@@ -74,8 +74,8 @@ function pingbot_text($args) {
 }
 function pingbot_action($args) {
 	global $api;
-	$chan = $args[1];
-	$message = explode(" ",$args[2]);
+	$chan = $args['channel'];
+	$message = $args['text_array']; // Using the BARE array instead of string.
 	if (strtolower($message[0]) == "slaps") {
 		$api->action($chan,"joins in and slaps ".$message[1]." too");
 	}
@@ -84,5 +84,9 @@ function pingbot_join($irc) {
 	global $api;
 	$api->msg($irc['chan'],"Welcome to ".$irc['chan'].", ".$irc['nick']."!");
 	$api->msg($irc['chan'],$irc['nick']." did you know your host is ".$irc['host']."?");
+}
+function pingbot_part($irc) {
+	global $api;
+	$api->msg($irc['chan'],"Bye ".$irc['chan']." :(");
 }
 ?>
