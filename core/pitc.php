@@ -1361,7 +1361,7 @@ class pitcapi {
 		else {
 			if ($chan[0] == "#") {
 				if ($sid) {
-					fputs($sid,"MODE {$chan} {$mode}";
+					fputs($sid,"MODE {$chan} {$mode}\n");
 				}
 				else {
 					$scrollback['0'][] = " = You are not connected to IRC! =";
@@ -1399,7 +1399,7 @@ class pitcapi {
 		}
 		else {
 			if ($sid) {
-				fputs($sid,"TOPIC {$chan} :{$text}");
+				fputs($sid,"TOPIC {$chan} :{$text}\n");
 			}
 			else {
 				$scrollback['0'][] = " = You are not connected to IRC! =";
