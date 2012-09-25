@@ -1250,7 +1250,7 @@ class pitcapi {
 		}
 	}
 	public function msg($channel = false,$text = false) {
-		global $scrollback;
+		global $scrollback, $sid, $cnick;
 		if (!$channel) {
 			$scrollback['0'][] = " ERROR. Missing TEXT in function MSG";
 		}
@@ -1258,13 +1258,17 @@ class pitcapi {
 			$scrollback['0'][] = " ERROR. Missing TEXT in function MSG";
 		}
 		else {
-			global $sid,$cnick;
-			fputs($sid,"PRIVMSG ".$channel." :".$text."\n");
-			$scrollback[getWid($channel)][] = " <".$cnick."> ".$text;
+			if ($sid) {
+				fputs($sid,"PRIVMSG ".$channel." :".$text."\n");
+				$scrollback[getWid($channel)][] = " <".$cnick."> ".$text;
+			}
+			else {
+				$scrollback['0'][] = " = You are not connected to IRC! =";
+			}
 		}
 	}
 	public function notice($channel = false,$text = false) {
-		global $scrollback;
+		global $scrollback, $sid, $cnick;
 		if (!$channel) {
 			$scrollback['0'][] = " ERROR. Missing TEXT in function NOTICE";
 		}
@@ -1272,13 +1276,17 @@ class pitcapi {
 			$scrollback['0'][] = " ERROR. Missing TEXT in function NOTICE";
 		}
 		else {
-			global $sid,$cnick;
-			fputs($sid,"NOTICE ".$channel." :".$text."\n");
-			$scrollback[getWid($channel)][] = " -".$cnick."- -> ".$text;
+			if ($sid) {
+				fputs($sid,"NOTICE ".$channel." :".$text."\n");
+				$scrollback[getWid($channel)][] = " -".$cnick."- -> ".$text;
+			}
+			else {
+				$scrollback['0'][] = " = You are not connected to IRC! =";
+			}
 		}
 	}
 	public function action($channel = false,$text = false) {
-		global $scrollback, $colors;
+		global $scrollback, $colors, $sid, $cnick;
 		if (!$channel) {
 			$scrollback['0'][] = " ERROR. Missing TEXT in function ACTION";
 		}
@@ -1286,12 +1294,16 @@ class pitcapi {
 			$scrollback['0'][] = " ERROR. Missing TEXT in function ACTION";
 		}
 		else {
-			global $sid,$cnick;
-			fputs($sid,"PRIVMSG ".$channel." :ACTION ".$text."\n");
-			$scrollback[getWid($channel)][] = $colors->getColoredString("* ".$cnick." ".$text,"purple");
+			if ($sid) {
+				fputs($sid,"PRIVMSG ".$channel." :ACTION ".$text."\n");
+				$scrollback[getWid($channel)][] = $colors->getColoredString("* ".$cnick." ".$text,"purple");
+			}
+			else {
+				$scrollback['0'][] = " = You are not connected to IRC! =";
+			}
 		}
 	}
-	public function quit($message = "Leaving...") {
+	public function quit($message = "Goodbye! For now!") {
 		global $sid;
 		if ($sid) {
 			fputs($sid,"QUIT :".$message."\n");
@@ -1326,15 +1338,16 @@ class pitcapi {
 			if ($sid) {
 				fputs($sid,"NICK :".$nick."\n");
 			}
-			else {
-				$_CONFIG['nick'] = $nick;
-			}
+			$_CONFIG['nick'] = $nick;
 		}
 	}
 	public function raw($text = false) {
 		global $sid,$scrollback;
 		if ($sid) {
 			fputs($sid,$text."\n");
+		}
+		else {
+			$scrollback['0'][] = " = You are not connected to IRC! =";
 		}
 	}
 	public function mode($chan = false,$mode = false) {
@@ -1347,7 +1360,12 @@ class pitcapi {
 		}
 		else {
 			if ($chan[0] == "#") {
-				fputs($sid,"MODE {$chan} {$mode}";
+				if ($sid) {
+					fputs($sid,"MODE {$chan} {$mode}";
+				}
+				else {
+					$scrollback['0'][] = " = You are not connected to IRC! =";
+				}
 			}
 			else {
 				$scrollback['0'][] = " ERROR. Invalid CHANNEL in function MODE";
@@ -1363,7 +1381,29 @@ class pitcapi {
 			$scrollback['0'][] = " ERROR. Missing CTCP in function CTCP";
 		}
 		else {
-			ctcp($nick,$ctcp);
+			if ($sid) {
+				ctcp($nick,$ctcp);
+			}
+			else {
+				$scrollback['0'][] = " = You are not connected to IRC! =";
+			}
+		}
+	}
+	public function topic($chan = false,$text = false) {
+		global $sid,$scrollback;
+		if (!$chan) {
+			$scrollback['0'][] = " ERROR. Missing CHANNEL in function TOPIC";
+		}
+		else if (!$ctcp) {
+			$scrollback['0'][] = " ERROR. Missing CHANNEL in function TOPIC";
+		}
+		else {
+			if ($sid) {
+				fputs($sid,"TOPIC {$chan} :{$text}");
+			}
+			else {
+				$scrollback['0'][] = " = You are not connected to IRC! =";
+			}
 		}
 	}
 	public function ctcpreply($nick = false,$ctcp = false,$text = false) {
@@ -1378,7 +1418,12 @@ class pitcapi {
 			$scrollback['0'][] = " ERROR. Missing TEXT in function CTCPREPLY";
 		}
 		else {
-			ctcpreply($nick,$ctcp,$text);
+			if ($sid) {
+				ctcpreply($nick,$ctcp,$text);
+			}
+			else {
+				$scrollback['0'][] = " = You are not connected to IRC! =";
+			}
 		}
 	}
 	// Window Control
