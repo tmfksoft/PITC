@@ -57,7 +57,7 @@ PITC API - Commands
 * [X] - Add ADDWINDOW command
 * [X] - Add DELWINDOW command
 * [X] - Add CHECKWINDOW command
-* [_] - Add MODE command
+* [#] - Add MODE command
 * [_] - Add TOPIC command
 * [_] - Add CTCP command
 

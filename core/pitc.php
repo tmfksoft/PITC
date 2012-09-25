@@ -1337,6 +1337,23 @@ class pitcapi {
 			fputs($sid,$text."\n");
 		}
 	}
+	public function mode($chan = false,$mode = false) {
+		global $sid,$scrollback;
+		if (!$chan) {
+			$scrollback['0'][] = " ERROR. Missing CHANNEL in function MODE";
+		}
+		else if (!$mode) {
+			$scrollback['0'][] = " ERROR. Missing MODE(S) in function MODE";
+		}
+		else {
+			if ($chan[0] == "#") {
+				fputs($sid,"MODE {$chan} {$mode}";
+			}
+			else {
+				$scrollback['0'][] = " ERROR. Invalid CHANNEL in function MODE";
+			}
+		}
+	}
 	// Window Control
 	public function addWindow($name) {
 		global $windows,$userlist,$scrollback,$active;
@@ -1389,6 +1406,9 @@ class pitcapi {
 		}
 	}
 	public function color($col,$text) {
+		return "".$col.$text."";
+	}
+	public function colour($col,$text) {
 		return "".$col.$text."";
 	}
 	public function bold($text) {
