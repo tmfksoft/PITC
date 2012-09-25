@@ -14,10 +14,7 @@ stream_set_blocking(STDIN, 0);
 stream_set_blocking(STDOUT, 0);
 set_error_handler("pitcError");
 $start_stamp = time();
-$unsupported = array(
-'Darwin',
-''
-);
+
 if ($argv[1] == "-a") {
 	$autoconnect = true;
 }
@@ -25,8 +22,13 @@ else {
 	$autoconnect = false;
 }
 /* Handle being terminated */
-if (PHP_OS == "Linux") {
-	// Not MAC OSX? Signals!
+if (PHP_OS !== "Darwin") {
+	/*
+	 * Mac OS X (darwin) doesn't be default come with the pcntl module bundled
+	 * with it's PHP install.  There's not much that can be done about that at this
+	 * point.
+	*/
+
 	pcntl_signal(SIGTERM, "signal_handler");
 	pcntl_signal(SIGINT, "signal_handler");
 	pcntl_signal(SIGHUP, "signal_handler");
@@ -43,7 +45,7 @@ else {
 }
 
 // Init some Variables.
-$version = "1.0";
+$version = "1.0"; // Do not change this!
 
 // Custom CTCP's - It is advisable that you use a script to add your own!
 $ctcps = array(); // LEAVE THIS LINE!
@@ -58,7 +60,7 @@ $text = "";
 
 include("config.php");
 
-if (!file_exists("config.cfg")) {
+if (!file_exists($_SERVER['PWD']."/core/config.cfg")) {
 	stream_set_blocking(STDIN, 1);
 	run_config();
 	sleep(1);
@@ -103,7 +105,7 @@ if ($latest > $version) {
 	include("colours.php");
 	$colors = new Colors(); // Part of Colours Script
 	// Load auto scripts.
-	if (file_exists("scripts/autoload")) {
+	if (file_exists($_SERVER['PWD']."scripts/autoload")) {
 		$scripts = explode("\n",file_get_contents($_SERVER['PWD']."/scripts/autoload"));
 		for ($x=0;$x != count($scripts);$x++) {
 			if ($scripts[$x][0] != ";") {
@@ -317,6 +319,8 @@ while (1) {
 		else {
 			stream_set_blocking(STDIN,1);
 			run_config();
+			unset($scrollback[1],$windows[1]);
+			$active = 0;
 			stream_set_blocking(STDIN,0);
 			$_CONFIG = load_config();
 		}
@@ -1004,7 +1008,7 @@ function connect($nick,$address,$port,$ssl = false,$password = false) {
 	$fp = fsockopen($address,$port, $errno, $errstr, 30);
 	if ($fp) {
 		if (!fputs($fp,"NICK ".$nick."\n")) { die("ERROR WRITING NICK"); }
-		$ed = explode("@",$_CONFIG['username']);
+		$ed = explode("@",$_CONFIG['email']);
         if (!fputs($fp,'USER '.$ed[0].' "'.$ed[1].'" "'.$address.'" :'.$_CONFIG['realname'].chr(10))) { die("ERROR WRITING USER"); }
 		if ($password) { if (!fputs($fp,"PASS :".$password."\n")) { die("ERROR WRITING PASS"); } }
 		return $fp;
