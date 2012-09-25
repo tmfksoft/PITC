@@ -61,7 +61,7 @@ PITC API - Commands
 * [_] - Add TOPIC command
 * [_] - Add CTCP command
 
-# You can use the RAW command to imitate unimplemented commands.
+#### You can use the RAW command to imitate unimplemented commands.
 
 PITC API - Commands - Formatting
 --------------------------------
@@ -69,4 +69,4 @@ PITC API - Commands - Formatting
 * [X] - Add COLOUR/COLOR formatting
 * [X] - Add ITALIC formatting
 
-# If you have any extra ideas for the API or General Client let me know
+#### If you have any extra ideas for the API or General Client let me know
