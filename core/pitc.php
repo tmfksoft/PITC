@@ -27,7 +27,11 @@ if (PHP_OS !== "Darwin") {
 	 * Mac OS X (darwin) doesn't be default come with the pcntl module bundled
 	 * with it's PHP install.  There's not much that can be done about that at this
 	 * point.
+<<<<<<< HEAD
 	*/
+=======
+	 */
+>>>>>>> a665258ac0705f1139e8ffba6f75783fab998ea6
 
 	pcntl_signal(SIGTERM, "signal_handler");
 	pcntl_signal(SIGINT, "signal_handler");
