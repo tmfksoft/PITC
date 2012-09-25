@@ -638,9 +638,10 @@ while (1) {
 					}
 					// API TIME!
 					$args = array();
-					$args[] = $source;
-					$args[] = strtolower($win);
-					$args[] = $words_string;
+					$args['nick'] = $source;
+					$args['channel'] = strtolower($win);
+					$args['text'] = $words_string;
+					$args['text_array'] = explode(" ",$words_string);
 					$x = 0;
 					while ($x != count($api_actions)) {
 						call_user_func($api_actions[$x],$args);
@@ -665,9 +666,10 @@ while (1) {
 						}
 						// API TIME!
 						$args = array();
-						$args[] = $source;
-						$args[] = strtolower($win);
-						$args[] = $message;
+						$args['nick'] = $source;
+						$args['channel'] = strtolower($win);
+						$args['text'] = $message;
+						$args['text_array'] = explode(" ",$message);
 						$x = 0;
 						while ($x != count($api_messages)) {
 							call_user_func($api_messages[$x],$args);
@@ -812,7 +814,6 @@ while (1) {
 				}
 				// API TIME!
 				$args = array();
-				$args['me'] = $cnick;
 				$args['nick'] = $nick;
 				$args['channel'] = strtolower($channel);
 				$args['host'] = $ex[1];
@@ -836,6 +837,18 @@ while (1) {
 					else {
 						$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." (".$ex[1].") has parted ".$channel,"green");
 					}
+				}
+				// API TIME!
+				$args = array();
+				$args['nick'] = $nick;
+				$args['channel'] = strtolower($channel);
+				$args['host'] = $ex[1];
+				$args['text'] = $message;
+				$args['text_array'] = explode(" ",$message);
+				$x = 0;
+				while ($x != count($api_joins)) {
+					call_user_func($api_joins[$x],$args);
+					$x++;
 				}
 			}
 			else if ($irc_data[1] == "KICK") {

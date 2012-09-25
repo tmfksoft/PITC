@@ -1,10 +1,12 @@
-<?php
-if (!file_exists("logs")) {
-	mkdir("logs");
+function load() {
+	global $api;
+	if (!file_exists("logs")) {
+		mkdir("logs");
+	}
+	$api->addCommand("log","save_log");
+	$api->addTickHandler("log_tick");
+	$api->log(" = Scrollback saving script loaded! =");
 }
-$api->addCommand("log","save_log");
-$api->addTickHandler("log_tick");
-$api->log(" = Scrollback saving script loaded! =");
 function save_log($irc) {
 	global $api,$windows,$scrollback;
 	if (isset($irc['1'])) {
@@ -53,4 +55,3 @@ function log_tick() {
 		$x++;
 	}
 }
-?>
