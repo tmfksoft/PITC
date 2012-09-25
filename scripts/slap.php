@@ -1,6 +1,5 @@
 <?php
-global $api;
-$api->addCommand("slap","slap_funct");
+$ap->addCommand("slap","slap_funct");
 
 function slap_funct($irc) {
 	global $api;

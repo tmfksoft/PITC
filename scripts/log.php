@@ -43,7 +43,7 @@ function save_log($irc) {
 	}
 }
 function log_tick() {
-	global $api,$windows,$scrollback;
+	global $windows,$scrollback;
 	$x = 0;
 	while ($x != key($windows)) {
 		if (isset($windows[$x])) {
