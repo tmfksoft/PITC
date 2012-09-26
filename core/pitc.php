@@ -116,7 +116,7 @@ if ($latest > $version) {
 	include("colours.php");
 	$colors = new Colors(); // Part of Colours Script
 	// Load auto scripts.
-	if (file_exists($_SERVER['PWD']."scripts/autoload")) {
+	if (file_exists($_SERVER['PWD']."/scripts/autoload")) {
 		$scripts = explode("\n",file_get_contents($_SERVER['PWD']."/scripts/autoload"));
 		for ($x=0;$x != count($scripts);$x++) {
 			if ($scripts[$x][0] != ";") {
