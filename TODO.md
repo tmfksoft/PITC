@@ -14,6 +14,7 @@ General
 * [%] - Allow scripts to be unloaded.
 * [_] - IRC Color Parsing
 * [_] - Add SCREEN support
+* [X] - Add ZNC Support
 
 Bugs
 ----
