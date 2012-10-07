@@ -560,6 +560,7 @@ while (1) {
 				$x++;
 			}
 			if ($irc_data[1] == "001") {
+				$cnick = $irc_data[2];
 				$x = 0;
 				while ($x != count($api_connect)) {
 					$args = array(); // Empty for now
