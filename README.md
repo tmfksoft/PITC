@@ -1,5 +1,5 @@
 =========================
-= PITC v1.0 Development =
+= PITC v1.1 Development =
 =========================
 
 What is PITC?
