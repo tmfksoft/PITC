@@ -1,0 +1,81 @@
+// EN - English - By Thomas Edwards
+/*
+ * Important note to translators!
+ * DONT Translate commands (Words with / at the start)
+ * Try not to Translate filenames or program names. e.g. api.php, SCREEN.
+ *
+ * Add the file to GITHUB or Email a PAstebin of it to TMFKSOFT@GMAIL.COM
+ */
+
+// Missing Files Messages
+$lng['MSNG_CONF'] = "Missing core file config.php, Did you extract ALL files?";
+$lng['MSNG_API'] = "Missing core file api.php, Did you extract ALL files?";
+
+// Update Messages.
+$lng['CHECKING_LATEST'] = "Checking latest version.";
+$lng['NEWER'] = "There is a newer version of PITC!";
+$lng['RUNUPDATE'] = "Run the update script to update!";
+
+// Auto Load
+$lng['AUTO_ERROR'] = "ERROR Automagically loading";
+$lng['NOSUCHFILE'] = "no such file!";
+
+// Misc
+$lng['SCREEN'] = "You are running on SCREEN! Just thought you may want to know that!";
+$lng['SCREEN_D_1'] = "I'm away. Auto away due to SCREEN being detatched.";
+$lng['SCREEN_D_2'] = "Screen disconnection detected!";
+
+// Memory Dumping
+$lng['MEM_DMPG'] = "Dumping variable memory to";
+$lng['MEM_DUMPED'] = "Dumped all variables to";
+$lng['MEM_ERROR'] = "Error dumping variable memory to";
+
+// View Command
+$lng['VIEW_ALREADY'] = "You are already viewing";
+$lng['VIEWING'] = "Viewing";
+$lng['VIEW_NO'] = "No such window!";
+
+// General Messages
+$lng['DISCONNECTED'] = "Disconnected from IRC! Use /connect";
+$lng['RECONNECT_TO'] = "to reconnect to";
+$lng['RECONNECT'] = "to reconnect.";
+$lng['NOT_CONN'] = "You're not connected to IRC! Use /exit to close the client!";
+$lng['DEF_QUIT'] = "Goodbye! For now!";
+$lng['NO_OPEN'] = "No open channels.";
+$lng['PARTING'] = "Parting";
+$lng['CHANGED'] = "changed to";
+$lng['NO_CONFIG'] = "You cannot run Configuration while connected. Disconnect via /quit";
+$lng['ERROR_SCRIPT'] = "ERROR! Script file not found!";
+$lng['USE_EXIT'] = "Use /quit to exit PITC";
+$lng['AUTO_CONN'] = "Auto connecting to IRC!";
+$lng['CONN_DEF'] = "Connecting to default server";
+$lng['CONN_TO'] = "Connecting to"; // This line and the above are intended to cater for grammar differences. If Any.
+$lng['CONN_ERROR'] = "Error connecting to IRC Server.";
+$lng['USAGE'] = "Usage";
+$lng['STATUS'] = "Status";
+$lng['WINDOW'] = "window";
+$lng['STATUS_NO'] = "Cannot close status window!";
+$lng['STATUS_TLK'] = "You cannot talk in the Status window!";
+$lng['WINDOWS_1'] = "There are";
+$lng['WINDOWS_2'] = "open windows.";
+$lng['WINDOWS_3'] = "The currently active window is";
+$lng['QUERY_CHAN'] = "To talk in a channel /join it and talk!";
+$lng['QUERY_OPEN'] = "Opened query to";
+$lng['CMD_UK'] = "Unknown Command!";
+$lng['MSG_IN'] = "Message in Window";
+$lng['FROM'] = "from";
+$lng['HIGHLIGHT'] = "highlighted you in";
+
+// IRC Messages - This part can be left in its current form if you wish.
+$lng['NICK_OTHER'] = "is now known as";
+$lng['NICK_SELF'] = "You are now known as";
+$lng['TOPIC_CHANGE'] = "changes to topic to";
+$lng['TOPIC_IS'] = "Topic is";
+$lng['TOPIC_BY'] = "Set by";
+$lng['SETS_MODE'] = "sets mode";
+$lng['JOIN_SELF'] = "Now chatting in";
+$lng['JOIN_OTHER'] = "has joined";
+$lng['PARTED'] = "has parted";
+$lng['KICK_OTHER'] = "has been kicked by";
+$lng['KICK_SELF'] = "kicked you from";
+$lng['QUIT'] = "quit";

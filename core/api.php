@@ -49,6 +49,15 @@ class pitcapi {
 			$api_actions[] = strtolower($function);
 		}
 	}
+	public function addStartHandler($function = false) {
+		global $api_start,$scrollback,$active;
+		if (!$function) {
+			$scrollback['0'][] = " ERROR. Missing FUNCTION in function ADDSTARTHANDLER";
+		}
+		else {
+			$api_start[] = strtolower($function);
+		}
+	}
 	public function addJoinHandler($function = false) {
 		global $api_joins,$scrollback,$active;
 		if (!$function) {

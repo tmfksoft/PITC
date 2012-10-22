@@ -35,8 +35,8 @@ PITC API - Handlers
 * [_] - Add KICK handler
 * [_] - Add TOPIC Handler
 * [X] - Add CONNECT handler
-* [_] - Add LOAD handler (Script Loaded)
-* [_] - Add START handler (Client Loaded)
+* [_] - Add LOAD handler (Script Loaded) - Will be implemented in v1.1
+* [X] - Add START handler (Client Loaded) - Before any GUI is displayed.
 * [_] - Add DISCONNECT handler
 * [X] - Add RAW handler
 * [_] - Add WHOIS handler

@@ -7,6 +7,8 @@ function run_config() {
 	$scrollback['1'][] = "PITC Configuration.";
 	drawwindow(1);
 
+	$lang = config_prompt($default['lang'],"language","Language Pack EN/ES (PITC Restarted Required)");
+	if ($lang) { $config[] = $lang; }
 	$config[] = config_prompt($default['nick'],"nick",false);
 	$config[] = config_prompt($default['altnick'],"altnick",false);
 	$config[] = config_prompt($default['email'],"email",false);

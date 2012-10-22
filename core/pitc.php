@@ -52,23 +52,11 @@ $ctcps = array(); // LEAVE THIS LINE!
 $ctcps['DONK'] = "PUT A DONK ON IT!"; //Edit if you wish.
 $ctcps['UPTIME'] = "Start time: ".$start_stamp;
 
-// Variable Inits - LEAVE THEM ALONE!
-$active = "0"; // Current window being viewed.
-$windows = array("Status");
-$scrollback['0'] = array(" = Status window. =");
-$text = "";
-
 if (file_exists($_SERVER['PWD']."/core/config.php")) {
 	include($_SERVER['PWD']."/core/config.php");
 }
 else {
-	die("Missing core file config.php, Did you extract ALL files?\n");
-}
-if (file_exists($_SERVER['PWD']."/core/api.php")) {
-	include($_SERVER['PWD']."/core/api.php");
-}
-else {
-	die("Missing core file api.php, Did you extract ALL files?\n");
+	die("ERROR Loading Config.php!\n");
 }
 
 if (!file_exists($_SERVER['PWD']."/core/config.cfg")) {
@@ -78,8 +66,42 @@ if (!file_exists($_SERVER['PWD']."/core/config.cfg")) {
 	stream_set_blocking(STDIN, 0);
 }
 
-// Load the config..
+// Load the config and language pack.
 $_CONFIG = load_config();
+if (isset($_CONFIG['lang'])) {
+	$language = $_CONFIG['lang'];
+}
+else {
+	$language = "en";
+}
+$lng = array();
+if (file_exists("langs/".$language.".lng")) {
+	eval(file_get_contents("langs/".$language.".lng"));
+}
+else {
+	if (file_exists("langs/en.lng")) {
+		eval(file_get_contents("langs/en.lng"));
+	}
+	else {
+		die("Unable to load Specified Language or English Language!\n");
+	}
+}
+
+
+// Variable Inits - LEAVE THEM ALONE!
+$active = "0"; // Current window being viewed.
+var_dump($lng);
+$windows = array($lng['STATUS']);
+$scrollback['0'] = array(" = {$lng['STATUS']} {$lng['WINDOW']}. =");
+$text = "";
+
+if (file_exists($_SERVER['PWD']."/core/api.php")) {
+	include($_SERVER['PWD']."/core/api.php");
+}
+else {
+	die("{$lng['MSNG_API']}\n");
+}
+
 
 // Scripting interface/api
 $api_commands = array();
@@ -91,6 +113,7 @@ $api_parts = array();
 $api_connect = array();
 $api_tick = array();
 $api_raw = array();
+$api_start = array();
 $_PITC = array();
 
 $_PITC['nick'] = $cnick;
@@ -99,14 +122,22 @@ $_PITC['network'] = false;
 $_PITC['server'] = false;
 $_PITC['address'] = false;
 
-$scrollback['0'][] = " = Checking latest version. =";
+// START Event
+$x = 0;
+while ($x != count($api_start)) {
+	$args = array(); // Empty for now
+	call_user_func($api_start[$x],$args);
+	$x++;
+}
+
+$scrollback['0'][] = " = {$lng['CHECKING_LATEST']} =";
 drawWindow(0,false);
 sleep(1);
 $latest = file_get_contents("http://s1.ilkotech.co.uk/pitc/latest");
 if ($latest > $version) {
-	$scrollback['0'][] = " = There is a newer version of PITC! =";
+	$scrollback['0'][] = " = {$lng['NEWER']} =";
 	drawWindow(0,false);
-	$scrollback['0'][] = " = Run the update script to update!";
+	$scrollback['0'][] = " = {$lng['RUNUPDATE']}";
 	drawWindow(0);
 	sleep(1);
 }
@@ -125,7 +156,7 @@ if ($latest > $version) {
 					include_once($script);
 				}
 				else {
-					$scrollback[0][] = " = ERROR Automagically loading '{$scripts[$x]}' no such file! =";
+					$scrollback[0][] = " = {$lng['AUTO_ERROR']} '{$scripts[$x]}' {$lng['NOSUCHFILE']} =";
 				}
 				drawWindow($active);
 			}
@@ -134,7 +165,7 @@ if ($latest > $version) {
 	}
 	drawWindow($active);
 	if ($_SERVER['TERM'] == "screen") {
-		$scrollback[0][] = " = You are running on SCREEN! Just thought you may want to know that! =";
+		$scrollback[0][] = " = {$lng['SCREEN']} =";
 		drawWindow($active);
 	}
 while (1) {
@@ -162,8 +193,8 @@ while (1) {
 					if (isset($_CONFIG['screen_away']) && $_CONFIG['screen_away'] == "true") {
 						if (isset($sid)) {
 							fputs($sid,"NICK :".$cnick."[Away]\n");
-							fputs($sid,"AWAY :I'm away. Auto away due to SCREEN being detatched.\n");
-							$scrollback[0][] = " = Screen disconnection detected! =";
+							fputs($sid,"AWAY :{$lng['SCREEN_D_1']}\n");
+							$scrollback[0][] = " = {$lngp['SCREEN_D_2']} =";
 						}
 					}
 				}
@@ -194,12 +225,12 @@ while (1) {
 					fputs($sid,"QUIT :{$_CONFIG['quit']}\n");
 				}
 				else {
-					fputs($sid,"QUIT :Goodbye! For now!\n");
+					fputs($sid,"QUIT :{$lng['DEF_QUIT']}\n");
 				}
 			}
 			$scrollback = array($scrollback['0']);
 			$windows = array("Status");
-			$scrollback['0'][] = " = Disconnected use /connect to reconnect to ".$_PITC['address']." =";
+			$scrollback['0'][] = " = {$lng['DISCONNECTED']} {$lng['RECONNECT_TO']} ".$_PITC['address']." =";
 			$cnick = $_CONFIG['nick'];
 			$active = 0;
 			fclose($sid);
@@ -207,7 +238,7 @@ while (1) {
 			$_PITC['address'] = false;
 		}
 		else {
-			$scrollback['0'][] = " = You're not connected to IRC! Use /exit to close the client! =";
+			$scrollback['0'][] = " = {$lng['NOT_CONN']} =";
 		}
 	}
 	else if ($cmd == "/exit") {
@@ -216,27 +247,27 @@ while (1) {
 				fputs($sid,"QUIT :{$_CONFIG['quit']}\n");
 			}
 			else {
-				fputs($sid,"QUIT :Goodbye! For now!\n");
+				fputs($sid,"QUIT :{$lng['DEF_QUIT']}\n");
 			}
 		}
 		die();
 	}
 	else if ($cmd == "^[^[[C") {
-		$scrollback[$active][] = "No open channels.";
+		$scrollback[$active][] = $lng['NO_OPEN'];
 	}
 	else if ($cmd == "/nick") {
 		if (isset($text[1])) {
 			if (!isset($sid)) {
 				$_CONFIG['nick'] = $text[1];
 				$cnick = $_CONFIG['nick'];
-				$scrollback['0'][] = " = Nick changed to ".$text[1]." =";
+				$scrollback['0'][] = " = Nick {$lng['CHANGED']} ".$text[1]." =";
 			}
 			else {
 				fputs($sid,"NICK :".$text[1]."\n");
 			}
 		}
 		else {
-			$scrollback[$active][] = "Usage: /nick NICK";
+			$scrollback[$active][] = "{$lng['USAGE']}: /nick NICK";
 		}
 	}
 	else if ($cmd == "/clear") {
@@ -253,11 +284,11 @@ while (1) {
 				drawWindow($active);
 			}
 			else {
-				$scrollback[$active][] = " ERROR! Script file not found!";
+				$scrollback[$active][] = " {$lng['ERROR_SCRIPT']}";
 			}
 		}
 		else {
-			$scrollback[$active][] = " Usage: /load file";
+			$scrollback[$active][] = " {$lng['USAGE']}: /load file";
 		}
 	}
 	else if ($cmd == "/bell") {
@@ -268,16 +299,28 @@ while (1) {
 	else if ($cmd == "/donk") {
 		$scrollback[$active][] = " = DONK! = ";
 	}
+	else if ($cmd == "/lang") {
+		$language = strtolower($text[1]);
+		if (file_exists("langs/".$language.".lng")) {
+			$lng = array();
+			eval(file_get_contents("langs/".$language.".lng"));
+			$scrollback[$active][] = "Loaded ".strtoupper($language)." - Prelogged data CANNOT be changed!";
+			drawWindow($active);
+		}
+		else {
+			$scrollback[$active][] = "ERROR Loading Language File!";
+		}
+	}
 	else if ($cmd == "/dumpmem") {
 		$fname = time()."_dump";
-		$scrollback[$active][] = "Dumping variable memory to ".$fname.".";
+		$scrollback[$active][] = "{$lng['MEM_DMPG']} ".$fname.".";
 		$vars = print_r(get_defined_vars(),true);
 		file_put_contents($fname,$vars);
 		if (file_exists($fname)) {
-			$scrollback[$active][] = "Dumped all variables to ".$fname.".";
+			$scrollback[$active][] = "{$lng['MEM_DUMPED']} ".$fname.".";
 		}
 		else {
-			$scrollback[$active][] = "Error dumping variable memory to ".$fname.".";
+			$scrollback[$active][] = "{$lng['MEM_ERROR']} ".$fname.".";
 		}
 	}
 	else if ($cmd == "/view") {
@@ -292,19 +335,19 @@ while (1) {
 			if (isset($windows[$id])) {
 				// View window.
 				if ($id == $active) {
-					$scrollback[$active][] = $colors->getColoredString("You are already viewing ".$windows[$id], "red");
+					$scrollback[$active][] = $colors->getColoredString("{$lng['VIEW_ALREADY']} ".$windows[$id], "red");
 				}
 				else {
 					$active = $id;
-					$scrollback[$active][] = $colors->getColoredString("Viewing ".$windows[$id], "red");
+					$scrollback[$active][] = $colors->getColoredString("{$lng['VIEWING']} ".$windows[$id], "red");
 				}
 			}
 			else {
-				$scrollback[$active][] = $colors->getColoredString("No such window!", "red");
+				$scrollback[$active][] = $colors->getColoredString("{$lng['VIEW_NO']}", "red");
 			}
 		}
 		else {
-			$scrollback[$active][] = $colors->getColoredString("Usage: /view ID/Name", "red");
+			$scrollback[$active][] = $colors->getColoredString("{$lng['USAGE']}: /view ID/Name", "red");
 		}
 	}
 	// End /view
@@ -313,7 +356,7 @@ while (1) {
 		$amount = key($windows);
 		$amount++;
 		//$amount = count($windows);
-		$scrollback[$active][] = "There are ".$amount." open windows.";
+		$scrollback[$active][] = "{$lng['WINDOWS_1']} ".$amount." {$lng['WINDOWS_2']}";
 		$x = 0;
 		while ($x != $amount) {
 			if (isset($windows[$x])) {
@@ -321,11 +364,11 @@ while (1) {
 			}
 			$x ++;
 		}
-		$scrollback[$active][] = "The currently active window is ".$active.":".$windows[$active];
+		$scrollback[$active][] = "{$lng['WINDOWS_3']} ".$active.":".$windows[$active];
 	}
 	else if ($cmd == "/config") {
 		if (isset($sid)) {
-			$scrollback[$active][] = " = You cannot run Configuration while connected. Disconnect via /quit =";
+			$scrollback[$active][] = " = {$lng['NO_CONFIG']} =";
 		}
 		else {
 			stream_set_blocking(STDIN,1);
@@ -354,29 +397,29 @@ while (1) {
 			$windowname = $windows[$win];
 			if ($windowname[0] == "#") {
 				// Tell the IRCD we're parting.
-				fputs($sid,"PART ".$windowname." :Parting!\n");
+				fputs($sid,"PART ".$windowname." :{$lng['PARTING']}!\n");
 			}
 			unset($windows[$win], $scrollback[$win],$userlist[$win]);
 			array_values($windows);
 			$active = count($windows)-1;
 		}
 		else {
-			$scrollback[$active][] = "Cannot close status window!";
-			$scrollback[$active][] = "Use /quit to exit PITC";
+			$scrollback[$active][] = "{$lng['STATUS_NO']}";
+			$scrollback[$active][] = "{$lngp['USE_EXIT']}";
 		}
 		
 	}
 	else if ($cmd == "/connect" || $autoconnect == true) {
 		if ($autoconnect) {
-			$scrollback[$active][] = " = Auto connecting to IRC! =";
+			$scrollback[$active][] = " = {$lng['AUTO_CONN']} =";
 			$autoconnect = false;
 		}
 		if (!isset($text[1])) {
-			$scrollback[$active][] = " = Connecting to default server (".$_CONFIG['address'].") =";
+			$scrollback[$active][] = " = {$lng['CONN_DEF']} (".$_CONFIG['address'].") =";
 			$address = $_CONFIG['address'];
 		}
 		else {
-			$scrollback[$active][] = " = Connecting to ".$text[1];
+			$scrollback[$active][] = " = {$lng['CONN_TO']} ".$text[1];
 			$address = $text[1];
 		}
 		$_PITC['address'] = $address;
@@ -389,7 +432,7 @@ while (1) {
 		$sid = connect($_CONFIG['nick'],$address[0],$port,$ssl,$password);
 		stream_set_blocking($sid, 0);
 		if (!$sid) {
-			$scrollback[$active][] = "Error connecting to IRC Server.";
+			$scrollback[$active][] = $lng['CONN_ERROR'];
 			unset($sid);
 		}
 	}
@@ -408,7 +451,7 @@ while (1) {
 				$command = substr($cmd,1);
 				if ($command == "me") {
 					if ($active == "0") {
-						$scrollback[$active][] = $colors->getColoredString(" You cannot talk in the Status window!", "red");
+						$scrollback[$active][] = $colors->getColoredString(" {$lng['STATUS_TLK']}", "red");
 					}
 					else {
 						$action = $text;
@@ -429,7 +472,7 @@ while (1) {
 				}
 				else if ($command == "ctcp") {
 					if (!isset($params[1]) || !isset($params[2])) {
-						$scrollback[$active][] = " Usage: /ctcp nick ctcp";
+						$scrollback[$active][] = " {$lng['USAGE']}: /ctcp nick ctcp";
 					}
 					else {
 						$scrollback[0][] = $colors->getColoredString(" -> [".$params[1]."] ".strtoupper($params[2]), "light_red");
@@ -439,7 +482,7 @@ while (1) {
 				else if ($command == "msg") {
 					// Send a message!
 					if (!isset($text[1]) || !isset($text[2])) {
-						$scrollback[$active][] = " Usage: /msg Nick/#Channel Message";
+						$scrollback[$active][] = " {$lng['USAGE']}: /msg Nick/#Channel Message";
 					}
 					else {
 						$target = $text[1];
@@ -452,7 +495,7 @@ while (1) {
 				else if ($command == "amsg") {
 					// Send a message!
 					if (!isset($text[1])) {
-						$scrollback[$active][] = " Usage: /amsg Message";
+						$scrollback[$active][] = " {$lng['USAGE']}: /amsg Message";
 					}
 					else {
 						$message = array_slice($text, 1);
@@ -472,7 +515,7 @@ while (1) {
 				else if ($command == "notice") {
 					// Send a notice!
 					if (!isset($text[1]) || !isset($text[2])) {
-						$scrollback[$active][] = "Usage: /notice Nick/#Channel Message";
+						$scrollback[$active][] = "{$lng['USAGE']}: /notice Nick/#Channel Message";
 					}
 					else {
 						$target = $text[1];
@@ -484,11 +527,11 @@ while (1) {
 				}
 				else if ($command == "query") {
 					if (!isset($text[1])) {
-						$scrollback[$active][] = "Usage /query nick";
+						$scrollback[$active][] = "{$lng['USAGE']} /query nick";
 					}
 					else {
 						if ($text[1][0] == "#") {
-							$scrollback[$active][] = "To talk in a channel /join it and talk!";
+							$scrollback[$active][] = $lng['QUERY_CHAN'];
 						}
 						else {
 							$wid = getWid($text[1]);
@@ -496,7 +539,7 @@ while (1) {
 								// Open a new window.
 								$windowid = count($windows);
 								$windows[] = $text[1];
-								$scrollback[$windowid] = array(" = Opened query to ".$text[1]);
+								$scrollback[$windowid] = array(" = {$lng['QUERY_OPEN']} ".$text[1]);
 								$userlist[$windowid] = array($cnick,$text[1]);
 								$active = $windowid;
 							}
@@ -523,7 +566,7 @@ while (1) {
 			}
 			else {
 				if ($active == "0") {
-					$scrollback[$active][] = $colors->getColoredString("You cannot talk in the Status window!", "red");
+					$scrollback[$active][] = $colors->getColoredString($lng['STATUS_TLK'], "red");
 				}
 				else {
 					//$scrollback[$active][] = "Sending message to ".$active.":".$windows['0']; // DEBUG
@@ -542,7 +585,7 @@ while (1) {
 				call_user_func($fnct,$args);
 			}
 			else {
-				$scrollback[$active][] = "Unknown Command!";
+				$scrollback[$active][] = $lng['CMD_UK'];
 			}
 		}
 	}
@@ -625,7 +668,7 @@ while (1) {
 					// No such channel. Create it.
 					$windows[] = $win;
 					$wid = getWid($win);
-					$scrollback[$active][] = $colors->getColoredString(" = Message in Window [".$wid.":".$win."] from ".$source." = ","cyan");
+					$scrollback[$active][] = $colors->getColoredString(" = {$lng['MSG_IN']} [".$wid.":".$win."] {$lng['FROM']} ".$source." = ","cyan");
 					// Get the new id.
 				}
 
@@ -645,7 +688,7 @@ while (1) {
 						// Highlight!
 						$scrollback[$wid][] = $colors->getColoredString("* ".$source." ".$words_string,"yellow");
 						if ($active != $wid) {
-							$scrollback[$active][] = $colors->getColoredString(" = ".$source." highlighted you in ".$win." = ","cyan");
+							$scrollback[$active][] = $colors->getColoredString(" = ".$source." {$lng['HIGHLIGHT']} ".$win." = ","cyan");
 							ringBell();
 						}
 					}
@@ -673,7 +716,7 @@ while (1) {
 							// Highlight!
 							$scrollback[$wid][] = $colors->getColoredString(" <".$source."> ".$message,"yellow");
 							if ($active != $wid) {
-								$scrollback[$active][] = $colors->getColoredString(" = ".$source." highlighted you in ".$win." = ","cyan");
+								$scrollback[$active][] = $colors->getColoredString(" = ".$source." {$lng['HIGHLIGHT']} ".$win." = ","cyan");
 								ringBell();
 							}
 						}
@@ -705,10 +748,10 @@ while (1) {
 					$nnick = $irc_data[2];
 				}
 				if ($nick != $cnick) {
-					$string = $colors->getColoredString("  * ".$nick." is now known as ".$nnick, "green");
+					$string = $colors->getColoredString("  * ".$nick." {$lng['NICK_OTHER']} ".$nnick, "green");
 				}
 				else {
-					$string = $colors->getColoredString("  * You are now known as ".$nnick, "green");
+					$string = $colors->getColoredString("  * {$lng['NICK_SELF']} ".$nnick, "green");
 					$cnick = $nnick;
 				}
 				$scrollback[$active][] = $string;
@@ -724,7 +767,7 @@ while (1) {
 				$x = 0;
 				while ($x != key($scrollback)) {
 					if (isset($scrollback[$x])) {
-						$scrollback[$x][] = $colors->getColoredString(" = Disconnected from IRC! Use /connect ".$_PITC['address']." to reconnect. =","blue");
+						$scrollback[$x][] = $colors->getColoredString(" = {$lng['DISCONNECTED']} ".$_PITC['address']." {$lng['RECONNECT']} =","blue");
 					}
 					$x++;
 				}
@@ -779,7 +822,7 @@ while (1) {
 				$nick = substr($ex[0],1);
 				$message = array_slice($irc_data, 3);
 				$message = substr(implode(" ",$message),1);
-				$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." changes to topic to '".$message."'", "green");
+				$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." {$lng['TOPIC_CHANGE']} '".$message."'", "green");
 			}
 			else if ($irc_data[1] == "332") {
 				// Topic.
@@ -787,7 +830,7 @@ while (1) {
 				$wid = getWid($chan);
 				$message = array_slice($irc_data, 4);
 				$message = substr(implode(" ",$message),1);
-				$scrollback[$wid][] = $colors->getColoredString("  * Topic is '".$message."'","green");
+				$scrollback[$wid][] = $colors->getColoredString("  * {$lng['TOPIC_IS']} '".$message."'","green");
 			}
 			else if ($irc_data[1] == "333") {
 				$chan = $irc_data[3];
@@ -795,7 +838,7 @@ while (1) {
 				$ex = explode("!",$irc_data[4]);
 				$nick = $ex[0];
 				$date = date(DATE_RFC822,$irc_data[5]);
-				$scrollback[$wid][] = $colors->getColoredString("  * Set by ".$nick." ".$date,"green");
+				$scrollback[$wid][] = $colors->getColoredString("  * {$lng['TOPIC_BY']} ".$nick." ".$date,"green");
 			}
 			else if ($irc_data[1] == "MODE") {
 				$chan = $irc_data[2];
@@ -805,7 +848,7 @@ while (1) {
 				$message = array_slice($irc_data,3);
 				$message = implode(" ",$message);
 				if ($message[0] == ":") { $message = substr($message,1); }
-				$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." sets mode: ".$message,"green");
+				$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." {$lng['SETS_MODE']}: ".$message,"green");
 			}
 			else if ($irc_data[1] == "JOIN") {
 				// Joined to a channel.
@@ -820,13 +863,13 @@ while (1) {
 					$wid = count($windows); // Our new ID.
 					$windows[$wid] = $channel;
 					$userlist[$wid] = array();
-					$scrollback[$wid] = array($colors->getColoredString("  * Now chatting in ".$channel,"green"));
+					$scrollback[$wid] = array($colors->getColoredString("  * {$lng['JOIN_SELF']} ".$channel,"green"));
 					$active = $wid;
 				}
 				else {
 					// Someone else did.
 					$wid = getWid($channel);
-					$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." (".$ex[1].") has joined ".$channel,"green");
+					$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." (".$ex[1].") {$lng['JOIN_OTHER']} ".$channel,"green");
 				}
 				// API TIME!
 				$args = array();
@@ -848,10 +891,10 @@ while (1) {
 					if (isset($irc_data[3])) {
 						$message = array_slice($irc_data, 3);
 						$message = substr(implode(" ",$message),1);
-						$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." (".$ex[1].") has parted ".$channel." (".$message.")","green");
+						$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." (".$ex[1].") {$lng['PARTED']} ".$channel." (".$message.")","green");
 					}
 					else {
-						$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." (".$ex[1].") has parted ".$channel,"green");
+						$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." (".$ex[1].") {$lng['PARTED']} ".$channel,"green");
 					}
 				}
 				// API TIME!
@@ -877,11 +920,11 @@ while (1) {
 					if (isset($irc_data[4])) {
 						$message = array_slice($irc_data, 4);
 						$message = substr(implode(" ",$message),1);
-						$scrollback[$wid][] = $colors->getColoredString("  * ".$kicked." has been kicked by ".$kicker." (".$message.")","green");
+						$scrollback[$wid][] = $colors->getColoredString("  * ".$kicked." {$lng['KICK_OTHER']} ".$kicker." (".$message.")","green");
 					}
 					else {
 						// %5 chance of this ever been used. but hey still could be!
-						$scrollback[$wid][] = $colors->getColoredString("  * ".$kicked." has been kicked by ".$kicker,"green");
+						$scrollback[$wid][] = $colors->getColoredString("  * ".$kicked." {$lng['KICK_OTHER']} ".$kicker,"green");
 					}
 				}
 				else {
@@ -889,10 +932,10 @@ while (1) {
 					if (isset($irc_data[4])) {
 						$message = array_slice($irc_data, 4);
 						$message = substr(implode(" ",$message),1);
-						$scrollback['0'][] = $colors->getColoredString("  * ".$kicker." kicked you from ".$channel." (".$message.")","green");
+						$scrollback['0'][] = $colors->getColoredString("  * ".$kicker." {$lng['KICK_SELF']} ".$channel." (".$message.")","green");
 					}
 					else {
-						$scrollback['0'][] = $colors->getColoredString("  * ".$kicked." kicked you from ".$channel,"green");
+						$scrollback['0'][] = $colors->getColoredString("  * ".$kicked." {$lng['KICK_SELF']} ".$channel,"green");
 					}
 					$active = 0;
 					unset($windows[$wid], $scrollback[$wid],$userlist[$wid]);
@@ -906,7 +949,7 @@ while (1) {
 					// Not me.
 					$message = array_slice($irc_data, 2);
 					$message = substr(implode(" ",$message),1);
-					$scrollback[$active][] = $colors->getColoredString("  * ".$nick." (".$ex[1].") quit (".$message.")","blue");
+					$scrollback[$active][] = $colors->getColoredString("  * ".$nick." (".$ex[1].") {$lng['QUIT']} (".$message.")","blue");
 				}
 			}
 			else {
@@ -989,8 +1032,8 @@ function drawWindow($window,$input = true) {
 	}
 	if ($input == true) {
 		$extra = "= [".$window.":".$windows[$window]."] ";
+		$extra .= str_repeat("=",$shell_cols-strlen($extra));
 		$data .= $extra;
-		$data .= str_repeat("=",$shell_cols-strlen($extra));
 		if (isset($sid)) {
 			$data .= "(".$cnick."): ";
 		}
