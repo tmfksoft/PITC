@@ -1,0 +1,75 @@
+// EN - English - By Thomas Edwards
+// NO - Norwegian - By Kaitlynn Wetzel
+
+// Missing Files Messages
+$lng['MSNG_CONF'] = "Mangler kjerne fil config.php, Gjore du trekke alle filer?";
+$lng['MSNG_API'] = "Mangler kjerne fil api.php, Gjore du trekke alle filer?";
+
+// Update Messages.
+$lng['CHECKING_LATEST'] = "Kontrollere nyeste versjonen.";
+$lng['NEWER'] = "Det er en nyere versjon av PITC!";
+$lng['RUNUPDATE'] = "Kjør oppdateringen skript for å oppdatere!";
+
+// Auto Load
+$lng['AUTO_ERROR'] = "FEIL automatisk lasting";
+$lng['NOSUCHFILE'] = "Ingen slik fil!";
+
+// Misc
+$lng['SCREEN'] = "Du kjører på skjermen! Tenkte du kanskje ønsker å vite at!";
+$lng['SCREEN_D_1'] = "Jeg er borte. Auto bort grunnet SCREEN blir frittliggende.";
+$lng['SCREEN_D_2'] = "Skjermen koble oppdaget!";
+
+// Memory Dumping
+$lng['MEM_DMPG'] = "Avlessing variabel minne til";
+$lng['MEM_DUMPED'] = "Dumpet alle variabler til";
+$lng['MEM_ERROR'] = "Feil Avlessing variabel minne til";
+
+// View Command
+$lng['VIEW_ALREADY'] = "Du allerede viser";
+$lng['VIEWING'] = "Vise";
+$lng['VIEW_NO'] = "Ingen slik vindu!";
+
+// General Messages
+$lng['DISCONNECTED'] = "Drakoblet fra IRC! Bruke /connect";
+$lng['RECONNECT_TO'] = "å koble til";
+$lng['RECONNECT'] = "å koble.";
+$lng['NOT_CONN'] = "Du er ikke koblet til IRC! Bruke /exit å lukke klienten!";
+$lng['DEF_QUIT'] = "God dag! For nå!";
+$lng['NO_OPEN'] = "Ingen åpne kanaler.";
+$lng['PARTING'] = "Avskjed";
+$lng['CHANGED'] = "Endret til";
+$lng['NO_CONFIG'] = "Du kan ikke kjøre Configuration mens du er koblet. Koble via /quit";
+$lng['ERROR_SCRIPT'] = "FEIL! Skriptfil ikke funnet!";
+$lng['USE_EXIT'] = "Bruke /quit å avslutte PITC";
+$lng['AUTO_CONN'] = "Automatisk tilkobling til IRC!";
+$lng['CONN_DEF'] = "Koble til standard server";
+$lng['CONN_TO'] = "Tilkobling til"; // This line and the above are intended to cater for grammar differences. If Any.
+$lng['CONN_ERROR'] = "Feil ved tilkobling til IRC Server.";
+$lng['USAGE'] = "Bruk";
+$lng['STATUS'] = "Status";
+$lng['WINDOW'] = "Vinduet";
+$lng['STATUS_NO'] = "Kan ikke lukke statusvinduet!";
+$lng['STATUS_TLK'] = "Du kan ikke snakke statusvinduet!";
+$lng['WINDOWS_1'] = "Det er";
+$lng['WINDOWS_2'] = "åpne vinduer.";
+$lng['WINDOWS_3'] = "Det aktive vinduet er";
+$lng['QUERY_CHAN'] = "Å snakke i en kanal /join det og snakke!";
+$lng['QUERY_OPEN'] = "Åpnet forespørsel til";
+$lng['CMD_UK'] = "uåpnet vindu!";
+$lng['MSG_IN'] = "Melding i vinduet";
+$lng['FROM'] = "fra";
+$lng['HIGHLIGHT'] = "fremhevet deg";
+
+// IRC Messages - This part can be left in its current form if you wish.
+$lng['NICK_OTHER'] = "er nå kjent som";
+$lng['NICK_SELF'] = "Du er nå kjent som";
+$lng['TOPIC_CHANGE'] = "endringer i emnet til";
+$lng['TOPIC_IS'] = "temaet er";
+$lng['TOPIC_BY'] = "angitt av";
+$lng['SETS_MODE'] = "Innstiller modus";
+$lng['JOIN_SELF'] = "Akkurat nå i";
+$lng['JOIN_OTHER'] = "har sluttet";
+$lng['PARTED'] = "har skiltes";
+$lng['KICK_OTHER'] = "har blitt sparket av";
+$lng['KICK_SELF'] = "sparket deg fra";
+$lng['QUIT'] = "slutte";
