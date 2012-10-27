@@ -7,7 +7,7 @@ function run_config() {
 	$scrollback['1'][] = "PITC Configuration.";
 	drawwindow(1);
 
-	$lang = config_prompt($default['lang'],"language","Language Pack EN/ES (PITC Restarted Required)");
+	$lang = config_prompt($default['lang'],"lang","Language Pack EN/ES (PITC Restarted Required)");
 	if ($lang) { $config[] = $lang; }
 	$config[] = config_prompt($default['nick'],"nick",false);
 	$config[] = config_prompt($default['altnick'],"altnick",false);
@@ -32,7 +32,7 @@ function run_config() {
 	drawwindow(0);
 }
 function load_config() {
-	global $cnick;
+	global $scrollback;
 	if (file_exists($_SERVER['PWD']."/core/config.cfg")) {
 		$_CONFIG = explode("\n",file_get_contents($_SERVER['PWD']."/core/config.cfg"));
 		$x = 0;
@@ -42,10 +42,10 @@ function load_config() {
 			unset($_CONFIG[$x]);
 			$x++;
 		}
-		$cnick = $_CONFIG['nick'];
 		return $_CONFIG;
 	}
 	else {
+		$scrollback['0'][] = "Error Loading config.";
 		return false;
 	}
 }
@@ -87,5 +87,11 @@ function config_prompt($default = false,$item,$alias,$required = true) {
 	else {
 		return strtolower($item)."=".$input;
 	}
+}
+function save_config($array) {
+	$config = array();
+	foreach ($array as $x => $data) { $config[] = $x."=".urlencode($data); }
+	file_put_contents($_SERVER['PWD']."/core/config.cfg",implode("\n",$config));
+	return true;
 }
 ?>

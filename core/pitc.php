@@ -90,7 +90,6 @@ else {
 
 // Variable Inits - LEAVE THEM ALONE!
 $active = "0"; // Current window being viewed.
-var_dump($lng);
 $windows = array($lng['STATUS']);
 $scrollback['0'] = array(" = {$lng['STATUS']} {$lng['WINDOW']}. =");
 $text = "";

@@ -2,7 +2,6 @@
 // NO - Norwegian - By Kaitlynn Wetzel
 
 // Missing Files Messages
-$lng['MSNG_CONF'] = "Mangler kjerne fil config.php, Gjore du trekke alle filer?";
 $lng['MSNG_API'] = "Mangler kjerne fil api.php, Gjore du trekke alle filer?";
 
 // Update Messages.
@@ -18,6 +17,7 @@ $lng['NOSUCHFILE'] = "Ingen slik fil!";
 $lng['SCREEN'] = "Du kjører på skjermen! Tenkte du kanskje ønsker å vite at!";
 $lng['SCREEN_D_1'] = "Jeg er borte. Auto bort grunnet SCREEN blir frittliggende.";
 $lng['SCREEN_D_2'] = "Skjermen koble oppdaget!";
+$lng['CONF_SAVE'] = "Saved configuration changes"; /* Awaiting Translation */
 
 // Memory Dumping
 $lng['MEM_DMPG'] = "Avlessing variabel minne til";

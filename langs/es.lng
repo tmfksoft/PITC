@@ -2,7 +2,6 @@
 // ES - Spanish - By Linkin
 
 // Missing Files Messages
-$lng['MSNG_CONF'] = "Falta el archivo núcleo config.php, ¿Haz extraido TODOS los arhivos?";
 $lng['MSNG_API'] = "Falta el archivo núcleo api.php, ¿Haz extraido TODOS los archivos?";
 
 // Update Messages.
@@ -18,6 +17,7 @@ $lng['NOSUCHFILE'] = "¡No existe el archivo!";
 $lng['SCREEN'] = "¡Tú estas actualizado en SCREEN! ¡Sólo pensé que tal vez querias saber eso!";
 $lng['SCREEN_D_1'] = "No estoy disponible. Auto mensaje debido a que SCREEN esta separada.";
 $lng['SCREEN_D_2'] = "¡Desconexión de SCREEN detectado!";
+$lng['CONF_SAVE'] = "Ajustes de configuraciÃ³n guardados.";
 
 // Memory Dumping
 $lng['MEM_DMPG'] = "Dumping/arrojando memoria variable para";

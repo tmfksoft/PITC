@@ -8,7 +8,6 @@
  */
 
 // Missing Files Messages
-$lng['MSNG_CONF'] = "Missing core file config.php, Did you extract ALL files?";
 $lng['MSNG_API'] = "Missing core file api.php, Did you extract ALL files?";
 
 // Update Messages.
@@ -24,6 +23,7 @@ $lng['NOSUCHFILE'] = "no such file!";
 $lng['SCREEN'] = "You are running on SCREEN! Just thought you may want to know that!";
 $lng['SCREEN_D_1'] = "I'm away. Auto away due to SCREEN being detatched.";
 $lng['SCREEN_D_2'] = "Screen disconnection detected!";
+$lng['CONF_SAVE'] = "Saved configuration changes.";
 
 // Memory Dumping
 $lng['MEM_DMPG'] = "Dumping variable memory to";
