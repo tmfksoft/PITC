@@ -267,6 +267,9 @@ while (1) {
 	else if ($cmd == "^[^[[C") {
 		$scrollback[$active][] = $lng['NO_OPEN'];
 	}
+	else if ($cmd == "^[[A") {
+		$scrollback[$active][] = "Last command";
+	}
 	else if ($cmd == "/settings") {
 		$scrollback[$active][] = " Your current configuration is as follows:";
 		foreach ($_CONFIG as $directive => $setting) {
@@ -638,6 +641,14 @@ while (1) {
 				$scrollback[getWid($channel)][] = $colors->getColoredString(" [ ".implode(" ",uListSort($users))." ]","cyan");
 				$userlist[getWid($channel)][] = uListSort($users);
 				array_values($userlist[getWid($channel)]);
+			}
+			else if ($irc_data[1] == "311") {
+				// WHOIS.
+				$scrollback[$active][] = " = WHOIS for {$irc_data[3]} =";
+				$scrollback[$active][] = " * {$irc_data[3]} is ".implode(" ",array_slice($irc_data,4));
+			}
+			else if ($irc_data[1] == "379" || $irc_data[1] == "378") {
+				$scrollback[$active][] = " * Whois data";
 			}
 			else if ($irc_data[1] == "PRIVMSG") {
 				$ex = explode("!",$irc_data[0]);

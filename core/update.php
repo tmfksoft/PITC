@@ -33,7 +33,7 @@ function update($force = false) {
 				$mdu = md5("http://update.pitc.x10.mx/?action=get&file={$data[1]}");
 				if ($mde != $mdu) {
 					if ($force) {
-						file_put_contents($data[1],"http://update.pitc.x10.mx/?action=get&file={$data[1]}");
+						file_put_contents($data[1],file_get_contents("http://update.pitc.x10.mx/?action=get&file={$data[1]}"));
 						echo "Overwrote {$data[1]}\n";
 					}
 					else {
