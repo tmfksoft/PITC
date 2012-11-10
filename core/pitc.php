@@ -45,7 +45,7 @@ else {
 }
 
 // Init some Variables.
-$version = "1.0"; // Do not change this!
+$version = "1.1"; // Do not change this!
 
 // Custom CTCP's - It is advisable that you use a script to add your own!
 $ctcps = array(); // LEAVE THIS LINE!
@@ -115,7 +115,7 @@ $api_raw = array();
 $api_start = array();
 $_PITC = array();
 
-$_PITC['nick'] = $cnick;
+$_PITC['nick'] = $_CONFIG['nick'];
 $_PITC['altnick'] = $_CONFIG['altnick'];
 $_PITC['network'] = false;
 $_PITC['server'] = false;
@@ -253,6 +253,12 @@ while (1) {
 	}
 	else if ($cmd == "^[^[[C") {
 		$scrollback[$active][] = $lng['NO_OPEN'];
+	}
+	else if ($cmd == "/settings") {
+		$scrollback[$active][] = " Your current configuration is as follows:";
+		foreach ($_CONFIG as $directive => $setting) {
+			$scrollback[$active][] = "    {$directive} = {$setting}";
+		}
 	}
 	else if ($cmd == "/nick") {
 		if (isset($text[1])) {
