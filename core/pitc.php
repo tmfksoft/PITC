@@ -132,7 +132,8 @@ while ($x != count($api_start)) {
 $scrollback['0'][] = " = {$lng['CHECKING_LATEST']} =";
 drawWindow(0,false);
 sleep(1);
-$latest = file_get_contents("http://s1.ilkotech.co.uk/pitc/latest");
+$latest = file_get_contents("http://update.pitc.x10.mx/?action=latest");
+$latest = file_get_contents("http://update.pitc.x10.mx/?action=latest");
 if ($latest > $version) {
 	$scrollback['0'][] = " = {$lng['NEWER']} =";
 	drawWindow(0,false);
@@ -238,6 +239,18 @@ while (1) {
 		}
 		else {
 			$scrollback['0'][] = " = {$lng['NOT_CONN']} =";
+		}
+	}
+	else if ($cmd == "/version") {
+		$scrollback['0'][] = " = You are running PITC v{$version} =";
+	}
+	else if ($cmd == "/update") {
+		if ($sid) {
+			$scrollback[0][] = " = You are connected to IRC. Disconnect first! =";
+		}
+		else {
+			update(true);
+			die("Please start PITC.");
 		}
 	}
 	else if ($cmd == "/exit") {
@@ -1209,5 +1222,7 @@ function uListSort($users) {
 	$ulist = array_values($ulist);
 	return $ulist;
 }
-// Userlist system.
+function getLatest() {
+	// Gets latest PITC Version
+}
 ?>
