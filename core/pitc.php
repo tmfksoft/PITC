@@ -6,8 +6,6 @@
 	#  COPYRIGHT TMFKSOFT 2012  #
 	#############################
  */
-
-system("stty -icanon");
  
 echo "Loading...\n";
 declare(ticks = 1);
@@ -43,6 +41,7 @@ if (function_exists('pcntl_signal')) {
 }
 
 if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN') {
+	system("stty -icanon"); // Only Linux can do this :D
 	$shell_cols = exec('tput cols');
 	$shell_rows = exec('tput lines');
 }
@@ -227,10 +226,13 @@ while (1) {
 			if ($buffpos > 0) { $buffpos--; }
 		}
 		else if ($in[2] == "C") {
+			// Pressed up.
 			if ($buffpos < strlen($buffer)) { $buffpos++; }
 		}
 		else if ($in[2] == "A") {
+			// Pressed Up.
 			$buffer = $previous;
+			$buffpos = strlen($buffer);
 		}
 	}
 	else if (ord($in) == 9) {
@@ -239,12 +241,14 @@ while (1) {
 			// Tab complete
 			if ($active != "0") {
 				// Lets TAB THIS!
-				$nicks = $userlist[$active];
+				$nicks = array();
+				foreach ($userlist[$active][0] as $nick) { $nicks[] = trim($nick[0],"~&@%+"); }
 				$match = array_search(substr($buffer,0,-1), $nicks);
 				if ($match) {
 					$buffer .= $nicks[$match];
 				}
 			}
+			else { $buffer .= "	"; }
 		}
 		else {
 			$buffer .= "	";
@@ -442,7 +446,12 @@ while (1) {
 		$x = 0;
 		while ($x != $amount) {
 			if (isset($windows[$x])) {
-				$scrollback[$active][] = "\t".$x." - ".$windows[$x];
+				if ($x == $active) {
+					$scrollback[$active][] = "\t".$x." - ".$windows[$x]." ({$lng['VIEWING']}) ";
+				}
+				else {
+					$scrollback[$active][] = "\t".$x." - ".$windows[$x];
+				}
 			}
 			$x ++;
 		}
