@@ -24,7 +24,7 @@ function update($force = false) {
 		}
 		else if ($data[0] == "F") {
 			if (!file_exists($data[1])) {
-				file_put_contents($data[1],"http://update.pitc.x10.mx/?action=get&file={$data[1]}");
+				file_put_contents($data[1],file_get_contents("http://update.pitc.x10.mx/?action=get&file={$data[1]}"));
 				echo "Retrieved file {$data[1]}\n";
 			}
 			else {

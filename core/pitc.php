@@ -7,13 +7,17 @@
 	#############################
  */
 
-
+system("stty -icanon");
+ 
 echo "Loading...\n";
 declare(ticks = 1);
 stream_set_blocking(STDIN, 0);
 stream_set_blocking(STDOUT, 0);
 set_error_handler("pitcError");
 $start_stamp = time();
+$buffer = "";
+$cmd = "";
+$text = "";
 
 if ($argv[1] == "-a") {
 	$autoconnect = true;
@@ -170,11 +174,7 @@ if ($latest > $version) {
 	}
 while (1) {
 	if (isset($windows[$active])) {
-		if (!isset($scroll)) { $scroll = $scrollback; }
-		if ($scrollback != $scroll) {
-			drawWindow($active);
-		}
-		$scroll = $scrollback;
+		drawWindow($active);
 	}
 	$x = 0;
 	while ($x != count($api_tick)) {
@@ -207,10 +207,25 @@ while (1) {
 		drawWindow($active);
 	}
 	*/
-	$text = explode(" ",trim(fgets(STDIN)));
+	$in = fgets(STDIN);
 
-	$cmd = strtolower($text[0]);
-	
+	if ($in != "" && ord($in) > 31 && ord($in) != 127) {
+		$text = "";
+		$cmd = "";
+		$buffer .= $in;
+	}
+	else if (ord($in) == 127) {
+		$buffer = substr($buffer,0,-1);
+	}
+	else if (ord($in) == 10) {
+		$text = explode(" ",$buffer);
+		$cmd = strtolower($text[0]);
+		$buffer = "";
+	}
+	else {
+		$text = "";
+		$cmd = "";
+	}
 	// Command Checking
 	if ($cmd == "/quit") {
 		if (isset($sid)) {
@@ -988,12 +1003,12 @@ while (1) {
 			}
 		}
 	}
-	usleep(25000);
+	usleep(2500);
 }
 
 function drawWindow($window,$input = true) {
 	// Lets draw the contents of the window... Fun
-	global $windows,$scrollback,$text,$colors,$sid,$_CONFIG,$cnick;
+	global $windows,$scrollback,$text,$colors,$sid,$_CONFIG,$cnick,$buffer;
 	
 	if (!isset($windows[$window])) {
 		var_dump($windows);
@@ -1064,10 +1079,10 @@ function drawWindow($window,$input = true) {
 		$extra .= str_repeat("=",$shell_cols-strlen($extra));
 		$data .= $extra;
 		if (isset($sid)) {
-			$data .= "(".$cnick."): ";
+			$data .= "(".$cnick."): {$buffer}";
 		}
 		else {
-			$data .= "> ";
+			$data .= "> {$buffer}";
 		}
 	}
 	else {
@@ -1232,6 +1247,11 @@ function uListSort($users) {
 	$ulist = array_merge($owners,$owners_other,$admins,$ops,$hops,$voices,$none);
 	$ulist = array_values($ulist);
 	return $ulist;
+}
+function format_text($text) {
+	$result = $text;
+	$text = 
+	return $result;
 }
 function getLatest() {
 	// Gets latest PITC Version
