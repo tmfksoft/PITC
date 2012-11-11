@@ -16,8 +16,11 @@ stream_set_blocking(STDOUT, 0);
 set_error_handler("pitcError");
 $start_stamp = time();
 $buffer = "";
+$buffpos = 0;
+$curshow = 0;
 $cmd = "";
 $text = "";
+$previous = "";
 
 if ($argv[1] == "-a") {
 	$autoconnect = true;
@@ -212,15 +215,58 @@ while (1) {
 	if ($in != "" && ord($in) > 31 && ord($in) != 127) {
 		$text = "";
 		$cmd = "";
-		$buffer .= $in;
+		
+		$left = substr($buffer, 0, $buffpos);
+		$right = substr($buffer, $buffpos);
+		$buffer = $left.$in.$right;
+		$buffpos++;
+	}
+	else if (ord($in) == 27) {
+		if ($in[2] == "D") {
+			// Pressed Left.
+			if ($buffpos > 0) { $buffpos--; }
+		}
+		else if ($in[2] == "C") {
+			if ($buffpos < strlen($buffer)) { $buffpos++; }
+		}
+		else if ($in[2] == "A") {
+			$buffer = $previous;
+		}
+	}
+	else if (ord($in) == 9) {
+		// Check if we're tab completing or not.
+		if (substr($buffer,0,-1) != " ") {
+			// Tab complete
+			if ($active != "0") {
+				// Lets TAB THIS!
+				$nicks = $userlist[$active];
+				$match = array_search(substr($buffer,0,-1), $nicks);
+				if ($match) {
+					$buffer .= $nicks[$match];
+				}
+			}
+		}
+		else {
+			$buffer .= "	";
+		}
 	}
 	else if (ord($in) == 127) {
-		$buffer = substr($buffer,0,-1);
+		// Backspace.
+		$left = substr($buffer, 0, $buffpos);
+		$right = substr($buffer, $buffpos);
+		
+		$buffer = substr($left,0,-1).$right;
+		$buffpos--;
 	}
 	else if (ord($in) == 10) {
 		$text = explode(" ",$buffer);
 		$cmd = strtolower($text[0]);
+		$previous = $buffer;
 		$buffer = "";
+		$buffpos = 0;
+	}
+	else if (ord($in) < 31 && ord($in) != 0) {
+		$buffer .= ord($in);
 	}
 	else {
 		$text = "";
@@ -277,7 +323,7 @@ while (1) {
 				fputs($sid,"QUIT :{$lng['DEF_QUIT']}\n");
 			}
 		}
-		die();
+		die("\nThanks for using PITC!\n");
 	}
 	else if ($cmd == "^[^[[C") {
 		$scrollback[$active][] = $lng['NO_OPEN'];
@@ -765,7 +811,7 @@ while (1) {
 							}
 						}
 						else {
-							$scrollback[$wid][] = " <".$source."> ".$message;
+							$scrollback[$wid][] = " <".$source."> ".format_text($message);
 						}
 						// API TIME!
 						$args = array();
@@ -1008,7 +1054,7 @@ while (1) {
 
 function drawWindow($window,$input = true) {
 	// Lets draw the contents of the window... Fun
-	global $windows,$scrollback,$text,$colors,$sid,$_CONFIG,$cnick,$buffer;
+	global $windows,$scrollback,$text,$colors,$sid,$_CONFIG,$cnick,$buffer,$buffpos,$curshow;
 	
 	if (!isset($windows[$window])) {
 		var_dump($windows);
@@ -1078,11 +1124,15 @@ function drawWindow($window,$input = true) {
 		$extra = "= [".$window.":".$windows[$window]."] ";
 		$extra .= str_repeat("=",$shell_cols-strlen($extra));
 		$data .= $extra;
+		
+		$left = substr($buffer, 0, $buffpos);
+		$right = substr($buffer, $buffpos);
+		
 		if (isset($sid)) {
-			$data .= "(".$cnick."): {$buffer}";
+			$data .= "(".$cnick."): {$left}|{$right}";
 		}
 		else {
-			$data .= "> {$buffer}";
+			$data .= "> {$left}|{$right}";
 		}
 	}
 	else {
@@ -1249,9 +1299,15 @@ function uListSort($users) {
 	return $ulist;
 }
 function format_text($text) {
-	$result = $text;
-	$text = 
-	return $result;
+	$text = preg_replace('/0(.*)/is', "\033[1;37m$1\033[0m", $text); // White
+	$text = preg_replace('/1(.*)/is', "\033[0;30m$1\033[0m", $text); // Black
+	$text = preg_replace('/2(.*)/is', "\033[0;34m$1\033[0m", $text); // Blue
+	$text = preg_replace('/3(.*)/is', "\033[0;32m$1\033[0m", $text); // Green
+	$text = preg_replace('/4(.*)/is', "\033[1;31m$1\033[0m", $text); // Light Red
+	$text = preg_replace('/5(.*)/is', "\033[0;31m$1\033[0m", $text); // Red
+	$text = preg_replace('/6(.*)/is', "\033[0;35m$1\033[0m", $text); // Purple
+	$text = preg_replace('/6(.*)/is', "\033[0;35m$1\033[0m", $text); // Purple
+	return $text;
 }
 function getLatest() {
 	// Gets latest PITC Version
