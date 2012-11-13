@@ -1384,7 +1384,7 @@ function string_duration($a,$b) {
 	$week = floor($uptime/604800);
 	$month = floor($uptime/2419200);
 	$year = floor($uptime/31536000);
-	$uptime = "{$second}s";
+	$uptime = "{$second}seconds";
 	if ($minute) { $uptime = "{$minute}minutes " . $uptime; }
 	if ($hour) { $uptime = "{$hour}hours " . $uptime; }
 	if ($day) { $uptime = "{$day}days " . $uptime; }
