@@ -9,6 +9,7 @@
  
 echo "Loading...\n";
 declare(ticks = 1);
+@ini_set("memory_limit","16M"); // Ask for more memory
 stream_set_blocking(STDIN, 0);
 stream_set_blocking(STDOUT, 0);
 set_error_handler("pitcError");
@@ -19,6 +20,7 @@ $curshow = 0;
 $cmd = "";
 $text = "";
 $previous = "";
+$rawlog = array();
 
 if ($argv[1] == "-a") {
 	$autoconnect = true;
@@ -56,7 +58,6 @@ $version = "1.1"; // Do not change this!
 // Custom CTCP's - It is advisable that you use a script to add your own!
 $ctcps = array(); // LEAVE THIS LINE!
 $ctcps['DONK'] = "PUT A DONK ON IT!"; //Edit if you wish.
-$ctcps['UPTIME'] = "Start time: ".$start_stamp;
 
 if (file_exists($_SERVER['PWD']."/core/config.php")) {
 	include($_SERVER['PWD']."/core/config.php");
@@ -70,6 +71,7 @@ if (!file_exists($_SERVER['PWD']."/core/config.cfg")) {
 	run_config();
 	sleep(1);
 	stream_set_blocking(STDIN, 0);
+	drawwindow(0);
 }
 
 // Load the config and language pack.
@@ -194,8 +196,8 @@ while (1) {
 				if ($data[2] == "(Detached)") {
 					if (isset($_CONFIG['screen_away']) && $_CONFIG['screen_away'] == "true") {
 						if (isset($sid)) {
-							fputs($sid,"NICK :".$cnick."[Away]\n");
-							fputs($sid,"AWAY :{$lng['SCREEN_D_1']}\n");
+							pitc_raw("NICK :".$cnick."[Away]");
+							pitc_raw("AWAY :{$lng['SCREEN_D_1']}");
 							$scrollback[0][] = " = {$lngp['SCREEN_D_2']} =";
 						}
 					}
@@ -217,16 +219,21 @@ while (1) {
 		
 		$left = substr($buffer, 0, $buffpos);
 		$right = substr($buffer, $buffpos);
-		$buffer = $left.$in.$right;
 		$buffpos++;
+		$buffer = $left.$in[0].$right;
 	}
 	else if (ord($in) == 27) {
 		if ($in[2] == "D") {
 			// Pressed Left.
 			if ($buffpos > 0) { $buffpos--; }
 		}
+		else if ($in[2] == "B") {
+			// Pressed Down
+			$buffer = "";
+			$buffpos = 0;
+		}
 		else if ($in[2] == "C") {
-			// Pressed up.
+			// Pressed Right.
 			if ($buffpos < strlen($buffer)) { $buffpos++; }
 		}
 		else if ($in[2] == "A") {
@@ -283,14 +290,14 @@ while (1) {
 			if (isset($text[1])) {
 				$qmsg = array_slice($text,1);
 				$qmsg = implode(" ",$qmsg);
-				fputs($sid,"QUIT :".$qmsg."\n");
+				pitc_raw("QUIT :".$qmsg);
 			}
 			else {
 				if (isset($_CONFIG['quit'])) {
-					fputs($sid,"QUIT :{$_CONFIG['quit']}\n");
+					pitc_raw("QUIT :{$_CONFIG['quit']}");
 				}
 				else {
-					fputs($sid,"QUIT :{$lng['DEF_QUIT']}\n");
+					pitc_raw("QUIT :{$lng['DEF_QUIT']}");
 				}
 			}
 			$scrollback = array($scrollback['0']);
@@ -321,10 +328,10 @@ while (1) {
 	else if ($cmd == "/exit") {
 		if (isset($sid)) {
 			if (isset($_CONFIG['quit'])) {
-				fputs($sid,"QUIT :{$_CONFIG['quit']}\n");
+				pitc_raw("QUIT :{$_CONFIG['quit']}");
 			}
 			else {
-				fputs($sid,"QUIT :{$lng['DEF_QUIT']}\n");
+				pitc_raw("QUIT :{$lng['DEF_QUIT']}");
 			}
 		}
 		die("\nThanks for using PITC!\n");
@@ -349,7 +356,7 @@ while (1) {
 				$scrollback['0'][] = " = Nick {$lng['CHANGED']} ".$text[1]." =";
 			}
 			else {
-				fputs($sid,"NICK :".$text[1]."\n");
+				pitc_raw("NICK :".$text[1]);
 			}
 		}
 		else {
@@ -398,9 +405,12 @@ while (1) {
 		}
 	}
 	else if ($cmd == "/dumpmem") {
-		$fname = time()."_dump";
+		$fname = "dumps/".time()."_dump";
 		$scrollback[$active][] = "{$lng['MEM_DMPG']} ".$fname.".";
 		$vars = print_r(get_defined_vars(),true);
+		if (!file_exists("dumps") && !is_dir("dumps")) {
+			mkdir("dumps");
+		}
 		file_put_contents($fname,$vars);
 		if (file_exists($fname)) {
 			$scrollback[$active][] = "{$lng['MEM_DUMPED']} ".$fname.".";
@@ -488,7 +498,7 @@ while (1) {
 			$windowname = $windows[$win];
 			if ($windowname[0] == "#") {
 				// Tell the IRCD we're parting.
-				fputs($sid,"PART ".$windowname." :{$lng['PARTING']}!\n");
+				pitc_raw("PART ".$windowname." :{$lng['PARTING']}!");
 			}
 			unset($windows[$win], $scrollback[$win],$userlist[$win]);
 			array_values($windows);
@@ -548,13 +558,13 @@ while (1) {
 						$action = $text;
 						unset($action[0]);
 						$action = implode(" ",$action);
-						fputs($sid,"PRIVMSG ".$windows[$active]." :ACTION ".$action."\n");
+						pitc_raw("PRIVMSG ".$windows[$active]." :ACTION ".$action."");
 						$scrollback[$active][] = $colors->getColoredString("* ".$cnick." ".$action,"purple");
 					}
 				}
 				else if ($command == "join") {
 					$chans = implode(" ",$params);
-					fputs($sid,"JOIN :".$chans."\n");
+					pitc_raw("JOIN :".$chans);
 				}
 				else if ($command == "raw" || $command == "/raw") {
 					$message = array_slice($text, 2);
@@ -595,7 +605,7 @@ while (1) {
 						while ($x != key($windows)) {
 							if (isset($windows[$x])) {
 								if ($windows[$x][0] == "#") {									
-									fputs($sid,"PRIVMSG ".$windows[$x]." :".$message."\n");
+									pitc_raw("PRIVMSG ".$windows[$x]." :".$message);
 									$scrollback[$x][] = " <.".$cnick."> ".$message;
 								}
 							}
@@ -612,7 +622,7 @@ while (1) {
 						$target = $text[1];
 						$message = array_slice($text, 2);
 						$message = implode(" ",$message);
-						fputs($sid,"NOTICE ".$target." :".$message."\n");
+						pitc_raw("NOTICE ".$target." :".$message);
 						$scrollback[$active][] = " -".$target."- -> ".$message;
 					}
 				}
@@ -651,7 +661,7 @@ while (1) {
 						call_user_func($fnct,$args);
 					}
 					else {
-						fputs($sid,$tentered."\n");
+						pitc_raw($tentered);
 					}
 				}
 			}
@@ -702,6 +712,28 @@ while (1) {
 					$x++;
 				}
 				$_PITC['network'] = $irc_data[1];
+			}
+			else if ($irc_data[1] == "CAP" && $irc_data[4] == ":sasl") {
+				// SASL Time.
+				if (isset($_CONFIG['sasl']) && strtolower($_CONFIG['sasl']) == "y") {
+					$scrollback[0][] = " = IRC Network supports SASL, Using SASL! =";
+					pitc_raw("AUTHENTICATE PLAIN");
+				}
+			}
+			else if ($irc_data[0] == "AUTHENTICATE" && $irc_data[1] == "+") {
+				if (isset($_CONFIG['sasl']) && strtolower($_CONFIG['sasl']) == "y") {
+					$enc = base64_encode(chr(0).$_CONFIG['sasluser'].chr(0).$_CONFIG['saslpass']);
+					pitc_raw("AUTHENTICATE {$enc}");
+				}
+			}
+			else if ($irc_data[1] == "900") {
+				$scrollback[0][] = " = You are logged in via SASL! =";
+			}
+			else if ($irc_data[1] == "904") {
+				$scrollback[0][] = " = SASL Auth failed. Incorrect details =";
+			}
+			else if ($irc_data[1] == "903") {
+				fputs($sid,"CAP END\n");
 			}
 			else if ($irc_data[1] == "353") {
 				// User list :3
@@ -952,7 +984,12 @@ while (1) {
 			else if ($irc_data[1] == "JOIN") {
 				// Joined to a channel.
 				// Add a new window.
-				$channel = substr($irc_data[2],1);
+				if ($irc_data[2][0] == ":") {
+					$channel = substr($irc_data[2],1);
+				}
+				else {
+					$channel = $irc_data[2];
+				}
 				$ex = explode("!",$irc_data[0]);
 				$nick = substr($ex[0],1);
 				
@@ -1154,7 +1191,8 @@ function drawWindow($window,$input = true) {
 function signal_handler($signal) {
 	global $sid;
 	if (isset($sid)) {
-		fputs($sid,"QUIT :Leaving... (".$signal.")\n");
+		system("stty sane");
+		pitc_raw("QUIT :Leaving... (".$signal.")");
 		fclose($sid);
 	}
 	die();
@@ -1165,10 +1203,11 @@ function connect($nick,$address,$port,$ssl = false,$password = false) {
 	if ($ssl) { $address = "ssl://".$address; }
 	$fp = fsockopen($address,$port, $errno, $errstr, 30);
 	if ($fp) {
-		if (!fputs($fp,"NICK ".$nick."\n")) { die("ERROR WRITING NICK"); }
+		if (strtolower($_CONFIG['sasl']) == "y") { pitc_raw("CAP REQ :sasl",$fp); }
+		pitc_raw("NICK ".$nick,$fp);
 		$ed = explode("@",$_CONFIG['email']);
-        if (!fputs($fp,'USER '.$ed[0].' "'.$ed[1].'" "'.$address.'" :'.$_CONFIG['realname'].chr(10))) { die("ERROR WRITING USER"); }
-		if ($password) { if (!fputs($fp,"PASS :".$password."\n")) { die("ERROR WRITING PASS"); } }
+        pitc_raw('USER '.$ed[0].' "'.$ed[1].'" "'.$address.'" :'.$_CONFIG['realname'],$fp);
+		if ($password) { pitc_raw("PASS :".$password,$fp); }
 		return $fp;
 	}
 	else {
@@ -1176,28 +1215,42 @@ function connect($nick,$address,$port,$ssl = false,$password = false) {
 	}
 }
 function parse($rid) {
-	global $scrollback,$active,$_CONFIG,$cnick;
+	global $scrollback,$active,$_CONFIG,$cnick,$rawlog;
 	//echo "Handling bot with RID ".$rid."\n";
 	if ($data = fgets($rid)) {
 		$data = trim($data);
+		$rawlog[] = "S: ".$data;
 		flush();
 		$ex = explode(' ', $data);
 		if ($ex[0] == "PING") {
-			fputs($rid,"PONG ".$ex[1]."\n");
+			pitc_raw("PONG ".$ex[1]);
 		}
 		else if ($ex[1] == "001") {
 			$scrollback['0'][] = " = Connected to IRC! =";
+			// Ajoin!
+			if (isset($_CONFIG['ajoin'])) {
+				$chans = explode(" ",$_CONFIG['ajoin']);
+				foreach ($chans as $chan) { pitc_raw("JOIN {$chan}"); }
+			}
 		}
 		else if ($ex[1] == "433") {
 			// Nick in use.
 			$scrollback['0'][] = "Nick in use. Changing to alternate nick.";
 			$cnick = $_CONFIG['altnick'];
-			fputs($rid,"NICK :".$cnick."\n");
+			pitc_raw("NICK :".$cnick);
 		}
 	}
 	return $data;
 }
-
+function pitc_raw($text,$sock = false) {
+	global $sid,$rawlog;
+	if ($sock) { $fp = $sock; }
+	else { $fp = $sid; }
+	$rawlog[] = "C: {$text}";
+	$ret = fputs($fp,"{$text}\n");
+	if ($ret) { return true; }
+	else { return false; }
+}
 function load_script($file) {
 	global $scrollback;
 	if (file_exists($file)) {
@@ -1232,8 +1285,9 @@ function ctcp($nick,$ctcp) {
 	fputs($sid,"PRIVMSG ".$nick." :".$ctcp."\n");
 }
 function getCtcp($ctcp) {
-	global $ctcps,$version;
+	global $ctcps,$version,$start_stamp;
 	$ctcps['VERSION'] = "PITC v".$version." by Thomas Edwards";
+	$ctcps['UPTIME'] = string_duration(time(),$start_stamp);
 	$ctcp = strtoupper($ctcp);
 	if (isset($ctcps[$ctcp])) {
 		return $ctcps[$ctcp];
@@ -1320,5 +1374,23 @@ function format_text($text) {
 }
 function getLatest() {
 	// Gets latest PITC Version
+}
+function string_duration($a,$b) {
+	$uptime = $a - $b;
+	$second = floor($uptime%60);
+	$minute = floor($uptime/60%60);
+	$hour = floor($uptime/3600);
+	$day = floor($uptime/86400);
+	$week = floor($uptime/604800);
+	$month = floor($uptime/2419200);
+	$year = floor($uptime/31536000);
+	$uptime = "{$second}s";
+	if ($minute) { $uptime = "{$minute}minutes " . $uptime; }
+	if ($hour) { $uptime = "{$hour}hours " . $uptime; }
+	if ($day) { $uptime = "{$day}days " . $uptime; }
+	if ($week) { $uptime = "{$week}weeks " . $uptime; }
+	if ($month) { $uptime = "{$month}months " . $uptime; }
+	if ($year) { $uptime = "{$year}years " . $uptime; }
+	return $uptime;
 }
 ?>

@@ -19,7 +19,19 @@ function run_config() {
 	
 	$pass = config_prompt($default['password'],"password",false,false);
 	if ($pass) { $config[] = $pass; }
-
+	
+	$ajoin = config_prompt($default['ajoin'],"ajoin","Channels to join on connect",false);
+	if (strtolower($ajoin) != "ajoin=") {
+		$config[] = $ajoin;
+	}
+	
+	$sasl = config_prompt($default['sasl'],"sasl","Enable sasl? [Y/N]",false);
+	if (strtolower($sasl) == "sasl=y") {
+		$config[] = $sasl;
+		$config[] = config_prompt($default['sasluser'],"sasluser","SASL Username",true);
+		$config[] = config_prompt($default['saslpass'],"saslpass","SASL Password",true);
+	}
+	
 	$scrollback['1'][] = "Please wait while your configuration is saved...";
 	drawwindow(1);
 
@@ -29,7 +41,6 @@ function run_config() {
 	sleep(1);
 	unset($windows['1'],$scrollback['1']);
 	$active = 0;
-	drawwindow(0);
 }
 function load_config() {
 	global $scrollback;

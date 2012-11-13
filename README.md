@@ -26,6 +26,10 @@ and Windows, It merely failed on Windows due to
 windows lacking certain requirements. A windows
 ready version should be available soon.
 
+Credits
+--------
+Aha2y - Creating the Uptime Script http://www.hawkee.com/snippet/9711/ which has been intergrated into PITC v1.1 and replaces the Uptime CTCP with new code, also adds the function string_duration();
+
 PITC is Opensource! I'm going to steal it and call it my own!
 -------------------------------------------------------------
 No you're not. PITC is OpenSource but you HAVE to give credit
