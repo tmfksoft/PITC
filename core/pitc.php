@@ -9,7 +9,7 @@
  
 echo "Loading...\n";
 declare(ticks = 1);
-@ini_set("memory_limit","16M"); // Ask for more memory
+@ini_set("memory_limit","8M"); // Ask for more memory
 stream_set_blocking(STDIN, 0);
 stream_set_blocking(STDOUT, 0);
 set_error_handler("pitcError");
@@ -63,7 +63,7 @@ if (file_exists($_SERVER['PWD']."/core/config.php")) {
 	include($_SERVER['PWD']."/core/config.php");
 }
 else {
-	die("ERROR Loading Config.php!\n");
+	shutdown("ERROR Loading Config.php!\n");
 }
 
 if (!file_exists($_SERVER['PWD']."/core/config.cfg")) {
@@ -91,7 +91,7 @@ else {
 		eval(file_get_contents("langs/en.lng"));
 	}
 	else {
-		die("Unable to load Specified Language or English Language!\n");
+		shutdown("Unable to load Specified Language or English Language!\n");
 	}
 }
 
@@ -106,7 +106,7 @@ if (file_exists($_SERVER['PWD']."/core/api.php")) {
 	include($_SERVER['PWD']."/core/api.php");
 }
 else {
-	die("{$lng['MSNG_API']}\n");
+	shutdown("{$lng['MSNG_API']}\n");
 }
 
 
@@ -186,7 +186,7 @@ while (1) {
 		call_user_func($api_tick[$x],$args);
 		$x++;
 	}
-	if ($_SERVER['TERM'] == "screen") {
+	if ($_SERVER['TERM'] == "screen" && isset($_SERVER['STY'])) {
 		$screen_d = shell_exec("screen -ls");
 		$screen_d = explode("\n",$screen_d);
 		$x = 0;
@@ -322,7 +322,7 @@ while (1) {
 		}
 		else {
 			update(true);
-			die("Please start PITC.");
+			shutdown("Please start PITC.");
 		}
 	}
 	else if ($cmd == "/exit") {
@@ -334,7 +334,7 @@ while (1) {
 				pitc_raw("QUIT :{$lng['DEF_QUIT']}");
 			}
 		}
-		die("\nThanks for using PITC!\n");
+		shutdown("\nThanks for using PITC!\n");
 	}
 	else if ($cmd == "^[^[[C") {
 		$scrollback[$active][] = $lng['NO_OPEN'];
@@ -1095,7 +1095,7 @@ while (1) {
 			}
 		}
 	}
-	usleep(2500);
+	usleep(5000);
 }
 
 function drawWindow($window,$input = true) {
@@ -1104,11 +1104,11 @@ function drawWindow($window,$input = true) {
 	
 	if (!isset($windows[$window])) {
 		var_dump($windows);
-		die("Script supplied invalid window ID\n");
+		shutdown("Script supplied invalid window ID\n");
 	}
 	if (!isset($scrollback[$window])) {
 		var_dump($scrollback);
-		die("Script supplied invalid (scrollback) for window ".$window."\n");
+		shutdown("Script supplied invalid (scrollback) for window ".$window."\n");
 	}
 	
 	$data = "";
@@ -1188,14 +1188,14 @@ function drawWindow($window,$input = true) {
 	echo $data;
 }
 
-function signal_handler($signal) {
+function shutdown($message = "Shutdown") {
 	global $sid;
 	if (isset($sid)) {
 		system("stty sane");
-		pitc_raw("QUIT :Leaving... (".$signal.")");
+		pitc_raw("QUIT :Leaving...");
 		fclose($sid);
 	}
-	die();
+	die($message);
 }
 
 function connect($nick,$address,$port,$ssl = false,$password = false) {
@@ -1204,10 +1204,10 @@ function connect($nick,$address,$port,$ssl = false,$password = false) {
 	$fp = fsockopen($address,$port, $errno, $errstr, 30);
 	if ($fp) {
 		if (strtolower($_CONFIG['sasl']) == "y") { pitc_raw("CAP REQ :sasl",$fp); }
+		if ($password) { pitc_raw("PASS :".$password,$fp); }
 		pitc_raw("NICK ".$nick,$fp);
 		$ed = explode("@",$_CONFIG['email']);
         pitc_raw('USER '.$ed[0].' "'.$ed[1].'" "'.$address.'" :'.$_CONFIG['realname'],$fp);
-		if ($password) { pitc_raw("PASS :".$password,$fp); }
 		return $fp;
 	}
 	else {
@@ -1230,7 +1230,16 @@ function parse($rid) {
 			// Ajoin!
 			if (isset($_CONFIG['ajoin'])) {
 				$chans = explode(" ",$_CONFIG['ajoin']);
-				foreach ($chans as $chan) { pitc_raw("JOIN {$chan}"); }
+				$rawjoin = "JOIN ";
+				foreach ($chans as $x => $chan) {
+					if ($x != count($chans)-1) {
+						$rawjoin .= "{$chan},";
+					}
+					else {
+						$rawjoin .= $chan;
+					}
+				}
+				pitc_raw($rawjoin);
 			}
 		}
 		else if ($ex[1] == "433") {
@@ -1247,9 +1256,7 @@ function pitc_raw($text,$sock = false) {
 	if ($sock) { $fp = $sock; }
 	else { $fp = $sid; }
 	$rawlog[] = "C: {$text}";
-	$ret = fputs($fp,"{$text}\n");
-	if ($ret) { return true; }
-	else { return false; }
+	return fputs($fp,"{$text}\n");
 }
 function load_script($file) {
 	global $scrollback;
@@ -1372,9 +1379,6 @@ function format_text($text) {
 	$text = preg_replace('/6(.*)/is', "\033[0;35m$1\033[0m", $text); // Purple
 	return $text;
 }
-function getLatest() {
-	// Gets latest PITC Version
-}
 function string_duration($a,$b) {
 	$uptime = $a - $b;
 	$second = floor($uptime%60);
@@ -1392,5 +1396,14 @@ function string_duration($a,$b) {
 	if ($month) { $uptime = "{$month}months " . $uptime; }
 	if ($year) { $uptime = "{$year}years " . $uptime; }
 	return $uptime;
+}
+function ircexplode($str) {
+	// Contributed by grawity
+    $str = rtrim($str, "\r\n");
+    $str = explode(" :", $str, 2);
+    $params = explode(" ", $str[0]);
+    if (count($str) > 1)
+        $params[] = $str[1];
+    return $params;
 }
 ?>
