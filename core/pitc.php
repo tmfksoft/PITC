@@ -7,6 +7,8 @@
 	#############################
  */
  
+ // DO NOT EDIT ANY CODE IN THIS FILE, You not longer need to.
+ 
 echo "Loading...\n";
 declare(ticks = 1);
 @ini_set("memory_limit","8M"); // Ask for more memory
@@ -21,6 +23,7 @@ $cmd = "";
 $text = "";
 $previous = "";
 $rawlog = array();
+$ctcps = array();
 
 if ($argv[1] == "-a") {
 	$autoconnect = true;
@@ -35,7 +38,6 @@ if (function_exists('pcntl_signal')) {
 	 * with it's PHP install.
 	 * Load it to take advantage of Signal Features.
 	*/
-
 	pcntl_signal(SIGTERM, "signal_handler");
 	pcntl_signal(SIGINT, "signal_handler");
 	pcntl_signal(SIGHUP, "signal_handler");
@@ -54,10 +56,6 @@ else {
 
 // Init some Variables.
 $version = "1.1"; // Do not change this!
-
-// Custom CTCP's - It is advisable that you use a script to add your own!
-$ctcps = array(); // LEAVE THIS LINE!
-$ctcps['DONK'] = "PUT A DONK ON IT!"; //Edit if you wish.
 
 if (file_exists($_SERVER['PWD']."/core/config.php")) {
 	include($_SERVER['PWD']."/core/config.php");
