@@ -120,14 +120,14 @@ $api_raw = array();
 $api_start = array();
 $_PITC = array();
 
-// PITC Variable
+// PITC Variables
 $_PITC['nick'] = $_CONFIG['nick'];
 $_PITC['altnick'] = $_CONFIG['altnick'];
 $_PITC['network'] = false;
 $_PITC['server'] = false;
 $_PITC['address'] = false;
 
-// START Event
+// START Handler/Hook
 $x = 0;
 while ($x != count($api_start)) {
 	$args = array(); // Empty for now
@@ -204,11 +204,6 @@ while (1) {
 			$x++;
 		}
 	}
-	/*
-	if ($shell_cols != exec('tput cols') || $shell_rows != exec('tput lines')) {
-		drawWindow($active);
-	}
-	*/
 	$in = fgets(STDIN);
 
 	if ($in != "" && ord($in) > 31 && ord($in) != 127) {
@@ -263,7 +258,6 @@ while (1) {
 		// Backspace.
 		$left = substr($buffer, 0, $buffpos);
 		$right = substr($buffer, $buffpos);
-		
 		$buffer = substr($left,0,-1).$right;
 		$buffpos--;
 	}
