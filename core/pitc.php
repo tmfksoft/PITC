@@ -107,7 +107,6 @@ else {
 	shutdown("{$lng['MSNG_API']}\n");
 }
 
-
 // Scripting interface/api
 $api_commands = array();
 $api_messages = array();
@@ -121,6 +120,7 @@ $api_raw = array();
 $api_start = array();
 $_PITC = array();
 
+// PITC Variable
 $_PITC['nick'] = $_CONFIG['nick'];
 $_PITC['altnick'] = $_CONFIG['altnick'];
 $_PITC['network'] = false;
