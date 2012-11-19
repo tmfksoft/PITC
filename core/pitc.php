@@ -1090,7 +1090,7 @@ while (1) {
 	usleep(5000);
 }
 
-function drawWindow($window,$input = true) {
+function drawWindow($window,$input = true,$return = false) {
 	// Lets draw the contents of the window... Fun
 	global $windows,$scrollback,$text,$colors,$sid,$_CONFIG,$cnick,$buffer,$buffpos,$curshow;
 	
@@ -1177,7 +1177,12 @@ function drawWindow($window,$input = true) {
 		// We don't care about input.
 		$data .= str_repeat("=",$shell_cols);
 	}
-	echo $data;
+	if ($return) {
+		return $data;
+	}
+	else {
+		echo $data;
+	}
 }
 
 function shutdown($message = "Shutdown") {
