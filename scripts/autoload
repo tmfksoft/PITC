@@ -1,3 +1,4 @@
 ;Place Script File Names in here to load the on PITC Start
 log.php
 slap.php
+screenshot.php

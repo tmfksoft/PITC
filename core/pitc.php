@@ -175,6 +175,12 @@ if ($latest > $version) {
 		drawWindow($active);
 	}
 while (1) {
+
+	if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN') {
+		// Update screensize.
+		$shell_cols = exec('tput cols');
+		$shell_rows = exec('tput lines');
+	}
 	if (isset($windows[$active])) {
 		drawWindow($active);
 	}
@@ -1124,7 +1130,7 @@ function drawWindow($window,$input = true,$return = false) {
 	
 	// Top Bar.
 	$data .= "\n= PITC - ".$windows[$window]." ";
-	$data .= str_repeat("=",$shell_cols-strlen("= pIRC - ".$windows[$window]." "));
+	$data .= str_repeat("=",$shell_cols-strlen("= pIRC - ".$windows[$window]." ")); // Before PITC was named PITC plus this line dont show.
 	$empty = $shell_rows-3; // Amount of lines to fill with Scrollback or \n
 	$scroll = count($scrollback[$window]); // Amount of lines in scrollback.
 	
@@ -1167,10 +1173,10 @@ function drawWindow($window,$input = true,$return = false) {
 		$right = substr($buffer, $buffpos);
 		
 		if (isset($sid)) {
-			$data .= "(".$cnick."): {$left}|{$right}";
+			$data .= "\n(".$cnick."): {$left}|{$right}";
 		}
 		else {
-			$data .= "> {$left}|{$right}";
+			$data .= "\n> {$left}|{$right}";
 		}
 	}
 	else {
