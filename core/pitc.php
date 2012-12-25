@@ -125,7 +125,7 @@ for ($i=0;$i<$void;$i++) { $scrollback['strt'][] = ""; }
 
 
 drawWindow($active,false);
-sleep(1);
+sleep(2);
 unset($scrollback['strt'],$windows['strt']);
 $active = "0";
 
