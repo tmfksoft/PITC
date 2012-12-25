@@ -8,6 +8,6 @@ function ascii_display($input,$window = 0) {
 	}
 }
 function ascii_read_file($filename) {
-	return explode("\n",base64_decode(file_get_contents($filename)));
+	return explode("\n",base64_decode(gzuncompress(file_get_contents($filename))));
 }
 ?>
