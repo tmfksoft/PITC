@@ -98,8 +98,9 @@ else {
 
 
 // Variable Inits - LEAVE THEM ALONE!
-$active = "0"; // Current window being viewed.
-$windows = array($lng['STATUS']);
+$active = "strt"; // Current window being viewed.
+$windows = array("strt"=>"PITC starting up",0=>$lng['STATUS']);
+$scrollback['strt'] = array();
 $scrollback['0'] = array(" = {$lng['STATUS']} {$lng['WINDOW']}. =");
 $text = "";
 
@@ -109,6 +110,24 @@ if (file_exists($_SERVER['PWD']."/core/api.php")) {
 else {
 	shutdown("{$lng['MSNG_API']}\n");
 }
+
+// ASCII Feature?!
+if (file_exists($_SERVER['PWD']."/core/ascii.php")) {
+	include($_SERVER['PWD']."/core/ascii.php");
+}
+$text = ascii_read_file($_SERVER['PWD']."/core/pitc_ascii.txt");
+ascii_display($text,"strt");
+
+$textlns = count($text);
+$void = ($shell_rows - $textlns) / 2;
+
+for ($i=0;$i<$void;$i++) { $scrollback['strt'][] = ""; }
+
+
+drawWindow($active,false);
+sleep(1);
+unset($scrollback['strt'],$windows['strt']);
+$active = "0";
 
 // Scripting interface/api
 $api_commands = array();
