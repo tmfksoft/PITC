@@ -115,7 +115,12 @@ else {
 if (file_exists($_SERVER['PWD']."/core/ascii.php")) {
 	include($_SERVER['PWD']."/core/ascii.php");
 }
-$text = ascii_read_file($_SERVER['PWD']."/core/pitc_ascii.txt");
+if (!is_connected()) {
+	$text = ascii_read_file($_SERVER['PWD']."/core/pitc_ascii.txt");
+}
+else {
+	$text = ascii_read_file("http://ascii.pitc.x10.mx/");
+}
 ascii_display($text,"strt");
 
 $textlns = count($text);
