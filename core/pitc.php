@@ -25,7 +25,7 @@ $previous = "";
 $rawlog = array();
 $ctcps = array();
 
-if ($argv[1] == "-a") {
+if (isset($argv[1]) && $argv[1] == "-a") {
 	$autoconnect = true;
 }
 else {
@@ -38,10 +38,13 @@ if (function_exists('pcntl_signal')) {
 	 * with it's PHP install.
 	 * Load it to take advantage of Signal Features.
 	*/
+	
+	/* Currently broken
 	pcntl_signal(SIGTERM, "signal_handler");
 	pcntl_signal(SIGINT, "signal_handler");
 	pcntl_signal(SIGHUP, "signal_handler");
 	pcntl_signal(SIGUSR1, "signal_handler");
+	*/
 }
 
 if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN') {
@@ -138,9 +141,14 @@ while ($x != count($api_start)) {
 $scrollback['0'][] = " = {$lng['CHECKING_LATEST']} =";
 drawWindow(0,false);
 sleep(1);
-$latest = file_get_contents("http://update.pitc.x10.mx/?action=latest");
-$latest = file_get_contents("http://update.pitc.x10.mx/?action=latest");
-if ($latest > $version) {
+if (is_connected()) {
+	$latest = file_get_contents("http://update.pitc.x10.mx/?action=latest");
+}
+else {
+	$latest = false;
+	$scrollback['0'][] = "PITC requires an internet connection to check for updates. Aborting check.";
+}
+if ($latest != false && $latest > $version) {
 	$scrollback['0'][] = " = {$lng['NEWER']} =";
 	drawWindow(0,false);
 	$scrollback['0'][] = " = {$lng['RUNUPDATE']}";
@@ -174,6 +182,8 @@ if ($latest > $version) {
 		$scrollback[0][] = " = {$lng['SCREEN']} =";
 		drawWindow($active);
 	}
+	$ann = data_get("http://announcements.pitc.x10.mx/");
+	if ($ann->message != "none") { $scrollback[0][] = " ".$ann->message; }
 while (1) {
 
 	if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN') {
@@ -1284,7 +1294,7 @@ function getWid($name) {
 }
 function pitcError($errno, $errstr, $errfile, $errline) {
 	global $active,$scrollback;
-	$scrollback[$active][] = "PITC PHP Error: (".$errline.") [$errno] $errstr";
+	$scrollback[$active][] = "PITC PHP Error: (Line ".$errline.") [$errno] $errstr in $errfile";
 }
 function ctcpReply($nick,$ctcp,$text) {
 	global $sid;
@@ -1408,5 +1418,26 @@ function ircexplode($str) {
     if (count($str) > 1)
         $params[] = $str[1];
     return $params;
+}
+function data_get($url = false) {
+	if ($url) {
+		$data = file_get_contents("http://announcements.pitc.x10.mx/");
+		$array = json_decode($data);
+		return $array;
+	}
+	else {
+		return false;
+	}
+}
+function is_connected() {
+    $connected = @fsockopen("pitc.x10.mx",80); //website and port
+    if ($connected) {
+        $is_conn = true; //action when connected
+        fclose($connected);
+    }
+	else {
+        $is_conn = false; //action in connection failure
+    }
+    return $is_conn;
 }
 ?>
