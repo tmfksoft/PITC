@@ -116,7 +116,7 @@ if (file_exists($_SERVER['PWD']."/core/ascii.php")) {
 	include($_SERVER['PWD']."/core/ascii.php");
 }
 if (!is_connected()) {
-	$text = ascii_read_file($_SERVER['PWD']."/core/pitc_ascii.txt");
+	$text = ascii_read_file($_SERVER['PWD']."/core/pitc_ascii");
 }
 else {
 	$text = ascii_read_file("http://ascii.pitc.x10.mx/");
