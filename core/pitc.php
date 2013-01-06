@@ -25,6 +25,9 @@ $previous = "";
 $rawlog = array();
 $ctcps = array();
 
+$_DEBUG = array(); // Used to set global vars for /dumpmem from within functions.
+$loaded = array(); // Loaded scripts.
+
 if (isset($argv[1]) && $argv[1] == "-a") {
 	$autoconnect = true;
 }
@@ -58,7 +61,7 @@ else {
 }
 
 // Init some Variables.
-$version = "1.1"; // Do not change this!
+$version = "1.2a"; // Do not change this!
 
 if (file_exists($_SERVER['PWD']."/core/config.php")) {
 	include($_SERVER['PWD']."/core/config.php");
@@ -192,6 +195,7 @@ if ($latest != false && $latest > $version) {
 				$script = $_SERVER['PWD']."/scripts/".trim($scripts[$x]);
 				if (file_exists($script)) {
 					include_once($script);
+					$loaded[] = $script;
 				}
 				else {
 					$scrollback[0][] = " = {$lng['AUTO_ERROR']} '{$scripts[$x]}' {$lng['NOSUCHFILE']} =";
@@ -405,6 +409,7 @@ while (1) {
 			// Check for file
 			if (file_exists($_SERVER['PWD']."/".$text[1])) {
 				include_once($_SERVER['PWD']."/".$text[1]);
+				$loaded[] = $_SERVER['PWD']."/".$text[1];
 				// We trust the script will do a log to say its loaded.
 				drawWindow($active);
 			}
@@ -414,6 +419,12 @@ while (1) {
 		}
 		else {
 			$scrollback[$active][] = " {$lng['USAGE']}: /load file";
+		}
+	}
+	else if ($cmd == "/loaded") {
+		$scrollback[$active][] = " - Currently loaded scripts:";
+		foreach ($loaded as $script) {
+			$scrollback[$active][] = "   - ".$script;
 		}
 	}
 	else if ($cmd == "/bell") {
@@ -763,6 +774,7 @@ while (1) {
 			}
 			else if ($irc_data[1] == "904") {
 				$scrollback[0][] = " = SASL Auth failed. Incorrect details =";
+				pitc_raw("CAP END");
 			}
 			else if ($irc_data[1] == "903") {
 				fputs($sid,"CAP END\n");
@@ -1238,7 +1250,7 @@ function shutdown($message = "Shutdown") {
 function connect($nick,$address,$port,$ssl = false,$password = false) {
 	global $_CONFIG,$domain;
 	if ($ssl) { $address = "ssl://".$address; }
-	$fp = fsockopen($address,$port, $errno, $errstr, 30);
+	$fp = @fsockopen($address,$port, $errno, $errstr, 30);
 	if ($fp) {
 		if (strtolower($_CONFIG['sasl']) == "y") { pitc_raw("CAP REQ :sasl",$fp); }
 		if ($password) { pitc_raw("PASS :".$password,$fp); }
