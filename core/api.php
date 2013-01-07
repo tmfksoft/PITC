@@ -6,7 +6,7 @@ class pitcapi {
 			die("Error. Missing TEXT in function LOG");
 		}
 		else {
-			$scrollback[$cserver]['0'][] = $text;
+			$scrollback['0'][] = $text;
 		}
 	}
 	public function addCommand($command = false,$function = false) {
@@ -95,20 +95,20 @@ class pitcapi {
 		}
 	}
 	// Now we add the commands.
-	public function pecho($text = false,$window = false,$server = 0) {
+	public function pecho($text = false,$window = false) {
 		global $scrollback,$active;
 		if (!$text) {
-			$scrollback[$server]['0'][] = " ERROR. Missing TEXT in function PECHO";
+			$scrollback['0'][] = " ERROR. Missing TEXT in function PECHO";
 		}
 		else {
 			if (!$window) {
-				$scrollback[$server][$active][] = $text;
+				$scrollback[$active][] = $text;
 			}
 			else {
 				if (!is_numeric($window)) {
-					$window = getWid($server,$window);
+					$window = getWid($window);
 				}
-				$scrollback[$server][$window][] = $text;
+				$scrollback[$window][] = $text;
 			}
 		}
 	}
