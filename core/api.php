@@ -123,7 +123,7 @@ class pitcapi {
 		else {
 			if ($sid) {
 				fputs($sid,"PRIVMSG ".$channel." :".$text."\n");
-				$scrollback[$cserver][getWid($cserver,$channel)][] = " <".$cnick."> ".$text;
+				$scrollback[$cserver][getWid($channel)][] = " <".$cnick."> ".$text;
 			}
 			else {
 				$scrollback[$cserver]['0'][] = " = You are not connected to IRC! =";

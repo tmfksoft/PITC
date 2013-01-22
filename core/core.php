@@ -776,12 +776,26 @@ while (1) {
 					pitc_raw("AUTHENTICATE {$enc}");
 				}
 			}
+			else if ($irc_data[0] == "AUTHENTICATE" && $irc_data[1] == "A") {
+				// IRCD Aborted SASL.
+				$scrollback[0][] = " = Server aborted SASL conversation! =";
+				pitc_raw("CAP END");
+			}
+			else if ($irc_data[0] == "AUTHENTICATE" && $irc_data[1] == "F") {
+				// Some form of Failiure, Not sure which. InspIRCD seems to send it.
+				pitc_raw("CAP END");
+			}
 			else if ($irc_data[1] == "900") {
 				$scrollback[0][] = " = You are logged in via SASL! =";
 			}
-			else if ($irc_data[1] == "904") {
+			else if ($irc_data[1] == "904" || $irc_data[1] == "905") {
 				$scrollback[0][] = " = SASL Auth failed. Incorrect details =";
 				pitc_raw("CAP END");
+			}
+			else if ($irc_data[1] == "906") {
+				// IRCD Aborted SASL.
+				$scrollback[0][] = " = Server aborted SASL conversation! =";
+				fputs($sid,"CAP END\n");
 			}
 			else if ($irc_data[1] == "903") {
 				fputs($sid,"CAP END\n");
