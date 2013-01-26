@@ -113,6 +113,7 @@ $windows = array("strt"=>"PITC starting up",0=>$lng['STATUS']);
 $scrollback['strt'] = array();
 $scrollback['0'] = array(" = {$lng['STATUS']} {$lng['WINDOW']}. =");
 $text = "";
+$chan_modes = array();
 
 if (file_exists($_SERVER['PWD']."/core/api.php")) {
 	include($_SERVER['PWD']."/core/api.php");
@@ -176,7 +177,7 @@ $scrollback['0'][] = " = {$lng['CHECKING_LATEST']} =";
 drawWindow(0,false);
 sleep(1);
 if (is_connected()) {
-	$latest = file_get_contents("http://update.pitc.x10.mx/?action=latest");
+	$latest = @file_get_contents("http://update.pitc.x10.mx/?action=latest");
 }
 else {
 	$latest = false;
@@ -291,12 +292,27 @@ while (1) {
 		if (substr($buffer,0,-1) != " ") {
 			// Tab complete
 			if ($active != "0") {
-				// Lets TAB THIS!
-				$nicks = array();
-				foreach ($userlist[$active][0] as $nick) { $nicks[] = trim($nick[0],"~&@%+"); }
-				$match = array_search(substr($buffer,0,-1), $nicks);
-				if ($match) {
-					$buffer .= $nicks[$match];
+				// Tab :3
+				// Check if we should be checking.
+				if ($buffer != "" && $buffer != " ") {
+					$full = nick_tab($userlist[$active],$buffer);
+				}
+				else {
+					$full = FALSE; // Aborts it anyway.
+				}
+				if ($full != FALSE) {
+					$buff = explode(" ",$buffer);
+					$items = count($buff);
+					$scrollback[$active][] = " I found {$items} words.";
+					if ($items > 1) {
+						unset($buff[count($buff)-1]);
+						$buff[] = $full;
+						$buffer = implode(" ",$buff);
+					}
+					else {
+						$buffer = $full;
+					}
+					$buffpos = strlen($buffer);
 				}
 			}
 			else { $buffer .= "	"; }
@@ -530,6 +546,14 @@ while (1) {
 			$_CONFIG = load_config();
 		}
 	}
+	else if ($cmd == "/ulist") {
+		$users = $userlist[$active];
+		$scrollback[$active][] = " = There are ".count($users)." users in this channel. =";
+		foreach ($users as $user) {
+			$scrollback[$active][] = "\t{$user}";
+		}
+		$scrollback[$active][] = " = End /ulist =";
+	}
 	else if ($cmd == "/close" || $cmd == "/part") {
 		// Close active window
 		if ($active != "0") {
@@ -609,7 +633,13 @@ while (1) {
 						unset($action[0]);
 						$action = implode(" ",$action);
 						pitc_raw("PRIVMSG ".$windows[$active]." :ACTION ".$action."");
-						$scrollback[$active][] = $colors->getColoredString("* ".$cnick." ".$action,"purple");
+						if ($windows[$active][0] == "#") {
+							$mynick = get_prefix($cnick,$userlist[getWid($active)]);
+						}
+						else {
+							$mynick = $cnick;
+						}
+						$scrollback[$active][] = $colors->getColoredString("* ".$mynick." ".$action,"purple");
 					}
 				}
 				else if ($command == "join") {
@@ -722,7 +752,13 @@ while (1) {
 				else {
 					//$scrollback[$active][] = "Sending message to ".$active.":".$windows['0']; // DEBUG
 					fputs($sid,"PRIVMSG ".$windows[$active]." :".$entered."\n");
-					$scrollback[$active][] = " <".$cnick."> ".$entered;
+					if ($windows[$active][0] == "#") {
+						$mynick = get_prefix($cnick,$userlist[$active]);
+					}
+					else {
+						$mynick = $cnick;
+					}
+					$scrollback[$active][] = " <".$mynick."> ".$entered;
 				}
 			}
 		}
@@ -787,6 +823,7 @@ while (1) {
 			}
 			else if ($irc_data[1] == "900") {
 				$scrollback[0][] = " = You are logged in via SASL! =";
+				pitc_raw("CAP END");
 			}
 			else if ($irc_data[1] == "904" || $irc_data[1] == "905") {
 				$scrollback[0][] = " = SASL Auth failed. Incorrect details =";
@@ -795,19 +832,27 @@ while (1) {
 			else if ($irc_data[1] == "906") {
 				// IRCD Aborted SASL.
 				$scrollback[0][] = " = Server aborted SASL conversation! =";
-				fputs($sid,"CAP END\n");
+				pitc_raw("CAP END");
 			}
 			else if ($irc_data[1] == "903") {
-				fputs($sid,"CAP END\n");
+				pitc_raw("CAP END");
 			}
 			else if ($irc_data[1] == "353") {
 				// User list :3
+				// 2013 - Fixed in regards to a bug causing issues. :D
 				$users = array_slice($irc_data,5);
 				$chan = $irc_data[4];
 				$users[0] = substr($users[0],1);
-				$scrollback[getWid($channel)][] = $colors->getColoredString(" [ ".implode(" ",uListSort($users))." ]","cyan");
-				$userlist[getWid($channel)][] = uListSort($users);
-				array_values($userlist[getWid($channel)]);
+				$scrollback[getWid($chan)][] = $colors->getColoredString(" [ ".implode(" ",uListSort($users))." ]","cyan");
+				$userlist[getWid($chan)] = array_merge($userlist[getWid($chan)],$users);
+				$userlist[getWid($chan)] = uListSort($userlist[getWid($chan)]);
+				array_values($userlist[getWid($chan)]);
+			}
+			else if ($irc_data[1] == "324") {
+				$mode = $irc_data[4];
+				$chan = $irc_data[3];
+				$id = getWid($chan);
+				$chan_modes[$id] = $mode;
 			}
 			else if ($irc_data[1] == "311") {
 				// WHOIS.
@@ -821,6 +866,10 @@ while (1) {
 				$ex = explode("!",$irc_data[0]);
 				$source = substr($ex[0],1);
 				$target = $irc_data[2];
+				if ($target[0] == "#") {
+					// Ulist Check!
+					$source = get_prefix($source,$userlist[getWid($target)]);
+				}
 				$message = array_slice($irc_data, 3);
 				$message = substr(implode(" ",$message),1);
 				$isctcp = false;
@@ -1044,6 +1093,10 @@ while (1) {
 				$message = array_slice($irc_data,3);
 				$message = implode(" ",$message);
 				if ($message[0] == ":") { $message = substr($message,1); }
+				$nick = get_prefix($nick,$userlist[$wid]);
+				// Recapture the userlist.
+				$userlist[$wid] = array();
+				pitc_raw("NAMES ".$chan);
 				$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." {$lng['SETS_MODE']}: ".$message,"green");
 			}
 			else if ($irc_data[1] == "JOIN") {
@@ -1063,6 +1116,7 @@ while (1) {
 					// I joined, Make a window.
 					$wid = count($windows); // Our new ID.
 					$windows[$wid] = $channel;
+					pitc_raw("MODE {$channel}");
 					$userlist[$wid] = array();
 					$scrollback[$wid] = array($colors->getColoredString("  * {$lng['JOIN_SELF']} ".$channel,"green"));
 					$active = $wid;
@@ -1071,6 +1125,9 @@ while (1) {
 					// Someone else did.
 					$wid = getWid($channel);
 					$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." (".$ex[1].") {$lng['JOIN_OTHER']} ".$channel,"green");
+					// Recapture the userlist.
+					$userlist[$wid] = array();
+					pitc_raw("NAMES ".$channel);
 				}
 				// API TIME!
 				$args = array();
@@ -1098,6 +1155,9 @@ while (1) {
 						$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." (".$ex[1].") {$lng['PARTED']} ".$channel,"green");
 					}
 				}
+				// Repopulate the Userlist.
+				$userlist[$wid] = array();
+				pitc_raw("NAMES ".$channel);
 				// API TIME!
 				$args = array();
 				$args['nick'] = $nick;
