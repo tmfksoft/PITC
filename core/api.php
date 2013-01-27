@@ -353,4 +353,51 @@ class pitcapi {
 		return "".$text."";
 	}
 }
+class channel {
+	public function topic($chan) {
+		global $chan_topic;
+		$chan = getWid($chan);
+		if ($chan) {
+			if (isset($chan_topic[$chan])) {
+				return $chan_topic[$chan];
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+	public function modes($chan) {
+		global $chan_modes;
+		$chan = getWid($chan);
+		if ($chan) {
+			if (isset($chan_modes[$chan])) {
+				return $chan_modes[$chan];
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+	public function users($chan) {
+		global $userlist;
+		$chan = getWid($chan);
+		if ($chan) {
+			if (isset($userlist[$chan])) {
+				return $userlist[$chan];
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+}
 ?>

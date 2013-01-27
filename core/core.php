@@ -114,6 +114,7 @@ $scrollback['strt'] = array();
 $scrollback['0'] = array(" = {$lng['STATUS']} {$lng['WINDOW']}. =");
 $text = "";
 $chan_modes = array();
+$chan_topic = array();
 
 if (file_exists($_SERVER['PWD']."/core/api.php")) {
 	include($_SERVER['PWD']."/core/api.php");
@@ -190,8 +191,9 @@ if ($latest != false && $latest > $version) {
 	drawWindow(0);
 	sleep(1);
 }
-	// Init our API
+	// Init our API's
 	$api = new pitcapi();
+	$chan_api = new channel();
 	// Load any core scripts.
 	include("colours.php");
 	$colors = new Colors(); // Part of Colours Script
@@ -735,9 +737,11 @@ while (1) {
 					// Forward to Server
 					if (isset($api_commands[$command])) {
 						// Command exists in the api. Call its function
-						$fnct = $api_commands[strtolower($command)];
-						$args = explode(" ",$tentered);
+						$args = array();
 						$args['active'] = $windows[$active];
+						$args['text'] = $tentered;
+						$args['text_array'] = explode(" ",$tentered);
+						$fnct = $api_commands[strtolower($command)];
 						call_user_func($fnct,$args);
 					}
 					else {
@@ -838,8 +842,9 @@ while (1) {
 				pitc_raw("CAP END");
 			}
 			else if ($irc_data[1] == "353") {
-				// User list :3
+				// Userlist :3
 				// 2013 - Fixed in regards to a bug causing issues. :D
+				// [WIP] Userlist shows every time a mode changes etc, needs to be sorted.
 				$users = array_slice($irc_data,5);
 				$chan = $irc_data[4];
 				$users[0] = substr($users[0],1);
@@ -852,6 +857,9 @@ while (1) {
 				$mode = $irc_data[4];
 				$chan = $irc_data[3];
 				$id = getWid($chan);
+				$mode = str_split($mode);
+				sort($mode);
+				$mode = implode("",$mode);
 				$chan_modes[$id] = $mode;
 			}
 			else if ($irc_data[1] == "311") {
@@ -923,7 +931,6 @@ while (1) {
 				$length = strlen($sc);
 				$lchar = $sc[$length-1];
 				// Figure out if its an action or not. -.-
-				// 
 				if ($words[0] == "ACTION" && $lchar == "" && !$isctcp) {
 					// ACTION!
 					unset($words[0]);
@@ -954,8 +961,7 @@ while (1) {
 				}
 				else {
 					if (!$isctcp) {
-						// Message!
-						// Check for highlight!
+						// Message! - Check for highlight!
 						//$scrollback[$wid][] = $cnick." ".$_CONFIG['nick']." ".stripos($message,$cnick)." ".stripos($message,$_CONFIG['nick']); // H/L Debug
 						if (isHighlight($message,$cnick)) {
 							// Highlight!
@@ -1067,6 +1073,7 @@ while (1) {
 				$nick = substr($ex[0],1);
 				$message = array_slice($irc_data, 3);
 				$message = substr(implode(" ",$message),1);
+				$chan_topic[$wid] = $message;
 				$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." {$lng['TOPIC_CHANGE']} '".$message."'", "green");
 			}
 			else if ($irc_data[1] == "332") {
@@ -1075,7 +1082,8 @@ while (1) {
 				$wid = getWid($chan);
 				$message = array_slice($irc_data, 4);
 				$message = substr(implode(" ",$message),1);
-				$scrollback[$wid][] = $colors->getColoredString("  * {$lng['TOPIC_IS']} '".$message."'","green");
+				$chan_topic[$wid] = $message;
+				$scrollback[$wid][] = $colors->getColoredString("  * {$lng['TOPIC_IS']} '".format_text($message)."'","green");
 			}
 			else if ($irc_data[1] == "333") {
 				$chan = $irc_data[3];
@@ -1097,6 +1105,7 @@ while (1) {
 				// Recapture the userlist.
 				$userlist[$wid] = array();
 				pitc_raw("NAMES ".$chan);
+				pitc_raw("MODE {$chan}");
 				$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." {$lng['SETS_MODE']}: ".$message,"green");
 			}
 			else if ($irc_data[1] == "JOIN") {
@@ -1183,8 +1192,7 @@ while (1) {
 						$message = substr(implode(" ",$message),1);
 						$scrollback[$wid][] = $colors->getColoredString("  * ".$kicked." {$lng['KICK_OTHER']} ".$kicker." (".$message.")","green");
 					}
-					else {
-						// %5 chance of this ever been used. but hey still could be!
+					else { // %5 chance of this ever been used. but hey still could be!
 						$scrollback[$wid][] = $colors->getColoredString("  * ".$kicked." {$lng['KICK_OTHER']} ".$kicker,"green");
 					}
 				}
@@ -1223,7 +1231,7 @@ while (1) {
 	usleep(5000);
 }
 function pitcError($errno, $errstr, $errfile, $errline) {
-	global $active,$scrollback;
-	$scrollback[$active][] = "PITC PHP Error: (Line ".$errline.") [$errno] $errstr in $errfile";
+	global $active,$scrollback; /* Must sit on line 1234 :D */
+	$scrollback[$active][] = "PITC PHP Error: (Line ".$errline." called at ".__LINE__.") [$errno] $errstr in $errfile";
 }
 ?>
