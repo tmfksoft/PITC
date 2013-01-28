@@ -377,7 +377,7 @@ function data_get($url = false) {
 	}
 }
 function is_connected() {
-    $connected = @fsockopen("pitc.x10.mx",80); //website and port
+    $connected = @fsockopen("google.com",80); //website and port
     if ($connected) {
         $is_conn = true; //action when connected
         fclose($connected);

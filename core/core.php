@@ -33,6 +33,7 @@ $text = "";
 $previous = "";
 $rawlog = array();
 $ctcps = array();
+$error_log = array();
 
 $_DEBUG = array(); // Used to set global vars for /dumpmem from within functions.
 $loaded = array(); // Loaded scripts.
@@ -136,11 +137,14 @@ else {
 if (file_exists($_SERVER['PWD']."/core/ascii.php")) {
 	include($_SERVER['PWD']."/core/ascii.php");
 }
+// DNS issue. quick fix for now.
 if (!is_connected()) {
 	$text = ascii_read_file($_SERVER['PWD']."/core/pitc_ascii");
+	$error_log[] = "[ASCII] No internet connection, loading local file.";
 }
 else {
-	$text = ascii_read_file("http://ascii.pitc.x10.mx/");
+	$text = ascii_read_file("http://pitc.x10.mx/ascii/");
+	$error_log[] = "[ASCII] Internet, Loading remote data.";
 }
 ascii_display($text,"strt");
 
