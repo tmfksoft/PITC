@@ -7,6 +7,15 @@
 	#############################
  */
  
+// One line you may want to tweak.
+$refresh = "5000";
+
+/*
+ * You can tweak the refresh from within PITC to find a suitable speed.
+ * Use '/refresh' to return the current speed.
+ * Use '/refresh value' to set the refresh speed.
+ */
+ 
  // DO NOT EDIT ANY CODE IN THIS FILE, You not longer need to.
  
 echo "Loading...\n";
@@ -376,6 +385,20 @@ while (1) {
 	}
 	else if ($cmd == "/version") {
 		$scrollback['0'][] = " = You are running PITC v{$version} =";
+	}
+	else if ($cmd == "/refresh") {
+		if (isset($text[1])) {
+			if (is_numeric($text[1])) {
+				$refresh = $text[1];
+				$scrollback['0'][] = " = Refresh speed altered to {$refresh}ms =";
+			}
+			else {
+				$scrollback['0'][] = " = The refresh speed CANNOT be set to a letter! =";
+			}
+		}
+		else {
+				$scrollback['0'][] = " = Refresh speed is currently {$refresh}ms =";
+		}
 	}
 	else if ($cmd == "/update") {
 		if ($sid) {
@@ -1228,7 +1251,7 @@ while (1) {
 			}
 		}
 	}
-	usleep(5000);
+	usleep($refresh);
 }
 function pitcError($errno, $errstr, $errfile, $errline) {
 	global $active,$scrollback;
