@@ -1231,7 +1231,7 @@ while (1) {
 	usleep(5000);
 }
 function pitcError($errno, $errstr, $errfile, $errline) {
-	global $active,$scrollback; /* Must sit on line 1234 :D */
+	global $active,$scrollback;
 	$scrollback[$active][] = "PITC PHP Error: (Line ".$errline." called at ".__LINE__.") [$errno] $errstr in $errfile";
 }
 ?>

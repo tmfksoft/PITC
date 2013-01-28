@@ -13,7 +13,7 @@ function drawWindow($window,$input = true,$return = false) {
 		shutdown("[drawWindow] Script supplied invalid (scrollback) for window ".$window." @ Line ".__LINE__."\n");
 	}
 	
-	$data = "";
+	$data = "\n";
 	if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN') {
 		$shell_cols = exec('tput cols');
 		$shell_rows = exec('tput lines');
@@ -34,6 +34,7 @@ function drawWindow($window,$input = true,$return = false) {
 	
 	// Top Bar.
 	if ($windows[$window][0] == "#") {
+	
 		// Channel.
 		$ucount = count($userlist[$window]);
 		if (isset($chan_modes[$window])) {
@@ -42,14 +43,42 @@ function drawWindow($window,$input = true,$return = false) {
 		else {
 			$modes = "(N/A)";
 		}
-		$topic = format_text($chan_topic[$window]);
-		$data .= "\n= PITC - ".$windows[$window]." [{$ucount}] [{$modes}: {$topic}]";
+		if (isset($chan_topic[$window])) {
+			$topic = format_text($chan_topic[$window]);
+		}
+		else {
+			$topic = " No Topic to Display! ";
+		}
+		// Sammich, Left and right data. Makes the maths and such easier.
+		$l = "= PITC - ".$windows[$window]." [{$ucount}] [{$modes}: ";
+		$r = " ] =";
+		$max = $shell_cols - (strlen($l)+strlen($r))-3; // MAX Length of the topic string, take 3 for the ...
+		if (strlen($topic) > $max) {
+			// Topic is tooooooo long, lets chop.
+			$topic = substr($topic,0,$max);
+			$tbar = $l.$topic."...".$r;
+			// Should be correct sized.
+		}
+		else {
+			$tbar = $l.$topic.$r; // Slap it together.
+			// Calc if we need to add some padding.
+			if (strlen($tbar) < $shell_cols) {
+				// We need padding,
+				$pad = $shell_cols - strlen($tbar);
+				$tbar .= str_repeat("=",$pad);
+				// Done
+			}
+			// All should be done and it should be nice and padded up.
+		}
+		
 	}
 	else {
-		$data .= "\n= PITC - ".$windows[$window]." ";
+		$tbar= "= PITC - ".$windows[$window]." ";
+		$equals = $shell_cols - strlen($tbar);
+		$tbar .= str_repeat("=",$equals);
 	}
-	// [WIP] - Needs sorting. :|
-	$data .= @str_repeat("=",$shell_cols-strlen($data)); // Before PITC was named PITC plus this line dont show.
+	
+	$data .= $tbar; // Add topic bar.
 	$empty = $shell_rows-3; // Amount of lines to fill with Scrollback or \n
 	$scroll = count($scrollback[$window]); // Amount of lines in scrollback.
 	
@@ -136,7 +165,9 @@ function connect($nick,$address,$port,$ssl = false,$password = false) {
 	if ($ssl) { $address = "ssl://".$address; }
 	$fp = @fsockopen($address,$port, $errno, $errstr, 30) or pitcError(0, "Error connecting.", "PITCCORE", "CORE+121");
 	if ($fp) {
-		if (strtolower($_CONFIG['sasl']) == "y") { pitc_raw("CAP REQ :sasl",$fp); }
+		if (isset($_CONFIG['sasl'])) {
+			if (strtolower($_CONFIG['sasl']) == "y") { pitc_raw("CAP REQ :sasl",$fp); }
+		}
 		if ($password) { pitc_raw("PASS :".$password,$fp); }
 		pitc_raw("NICK ".$nick,$fp);
 		$ed = explode("@",$_CONFIG['email']);
