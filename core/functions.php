@@ -121,7 +121,12 @@ function drawWindow($window,$input = true,$return = false) {
 		$right = substr($buffer, $buffpos);
 		
 		if (isset($sid)) {
-			$data .= "\n(".$cnick."): {$left}|{$right}";
+			if ($cnick != "") {
+				$data .= "\n(".$cnick."): {$left}|{$right}";
+			}
+			else {
+				$data .= "\n(".$_CONFIG['nick']."): {$left}|{$right}";
+			}
 		}
 		else {
 			$data .= "\n> {$left}|{$right}";
@@ -208,7 +213,7 @@ function parse($rid) {
 		}
 		else if ($ex[1] == "433") {
 			// Nick in use.
-			$scrollback['0'][] = "Nick in use. Changing to alternate nick.";
+			$scrollback['0'][] = " = Nick in use. Changing to alternate nick! =";
 			$cnick = $_CONFIG['altnick'];
 			pitc_raw("NICK :".$cnick);
 		}
@@ -393,7 +398,6 @@ function nick_tab($nicks,$text,$tab = 0) {
 	// Get last letter or word.
 	$data = explode(" ",$text);
 	$data = $data[count($data)-1];
-	echo "Searching for {$data}\n";
 	
 	$nicknames = array();
 	foreach ($nicks as $name) {
@@ -414,18 +418,22 @@ function nick_tab($nicks,$text,$tab = 0) {
 	}
 }
 function get_prefix($nick,$nicks = array()) {
-	echo "Searching for {$nick}\n";
 	$old = $nick;
 	$nicknames = array();
-	foreach ($nicks as $name) {
-		$nicknames[] = strtolower($name);
-	}
-	$nick = strtolower($nick);
-	$ret = preg_grep("/(~|&|@|\%|\+|){$nick}$/", $nicknames);
-	if ($ret > 0 && $ret != FALSE) {
-		reset($ret);
-		$key = key($ret);
-		return $nicks[$key];
+	if ($nicks > 0) {
+		foreach ($nicks as $name) {
+			$nicknames[] = strtolower($name);
+		}
+		$nick = strtolower($nick);
+		$ret = preg_grep("/(~|&|@|\%|\+|){$nick}$/", $nicknames);
+		if ($ret > 0 && $ret != FALSE) {
+			reset($ret);
+			$key = key($ret);
+			return $nicks[$key];
+		}
+		else {
+			return $old;
+		}
 	}
 	else {
 		return $old;

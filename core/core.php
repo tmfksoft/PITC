@@ -18,6 +18,10 @@ $refresh = "5000";
  
  // DO NOT EDIT ANY CODE IN THIS FILE, You not longer need to.
  
+ // DEBUG
+	$keybuff_arr = array();
+ // END DEBUG
+ 
 echo "Loading...\n";
 declare(ticks = 1);
 @ini_set("memory_limit","8M"); // Ask for more memory
@@ -35,7 +39,7 @@ $rawlog = array();
 $ctcps = array();
 $error_log = array();
 
-$_DEBUG = array(); // Used to set global vars for /dumpmem from within functions.
+$_DEBUG = array(); // Used to set global vars for /dump from within functions.
 $loaded = array(); // Loaded scripts.
 
 if (isset($argv[1]) && $argv[1] == "-a") {
@@ -71,7 +75,7 @@ else {
 }
 
 // Init some Variables.
-$version = "1.2a"; // Do not change this!
+$version = "1.2"; // Do not change this!
 
 if (file_exists($_SERVER['PWD']."/core/functions.php")) {
 	include($_SERVER['PWD']."/core/functions.php");
@@ -191,7 +195,7 @@ $scrollback['0'][] = " = {$lng['CHECKING_LATEST']} =";
 drawWindow(0,false);
 sleep(1);
 if (is_connected()) {
-	$latest = @file_get_contents("http://update.pitc.x10.mx/?action=latest");
+	$latest = @file_get_contents("http://pitc.x10.mx/update/?action=latest");
 }
 else {
 	$latest = false;
@@ -301,6 +305,14 @@ while (1) {
 			$buffer = $previous;
 			$buffpos = strlen($buffer);
 		}
+		else if ($in[2] == 5) {
+			// Page Up.
+			$scrollback[$active][] = " = Page UP =";
+		}
+		else if ($in[2] == 6) {
+			// Page down
+			$scrollback[$active][] = " = Page Down =";
+		}
 	}
 	else if (ord($in) == 9) {
 		// Check if we're tab completing or not.
@@ -350,12 +362,16 @@ while (1) {
 		$buffer = "";
 		$buffpos = 0;
 	}
+	// anything not recognised.
 	else if (ord($in) < 31 && ord($in) != 0) {
 		$buffer .= ord($in);
 	}
 	else {
 		$text = "";
 		$cmd = "";
+	}
+	if (ord($in) != 0) {
+		$keybuff_arr[] = ord($in);
 	}
 	// Command Checking
 	if ($cmd == "/quit") {
@@ -499,20 +515,32 @@ while (1) {
 			$scrollback[$active][] = "ERROR Loading Language File!";
 		}
 	}
-	else if ($cmd == "/dumpmem") {
+	else if ($cmd == "/dump") {
 		$fname = "dumps/".time()."_dump";
-		$scrollback[$active][] = "{$lng['MEM_DMPG']} ".$fname.".";
+		$scrollback[$active][] = " # {$lng['MEM_DMPG']} ".$fname.". #";
 		$vars = print_r(get_defined_vars(),true);
 		if (!file_exists("dumps") && !is_dir("dumps")) {
 			mkdir("dumps");
 		}
 		file_put_contents($fname,$vars);
 		if (file_exists($fname)) {
-			$scrollback[$active][] = "{$lng['MEM_DUMPED']} ".$fname.".";
+			$scrollback[$active][] = " # {$lng['MEM_DUMPED']} ".$fname.". #";
 		}
 		else {
-			$scrollback[$active][] = "{$lng['MEM_ERROR']} ".$fname.".";
+			$scrollback[$active][] = " # {$lng['MEM_ERROR']} ".$fname.". #";
 		}
+	}
+	else if ($cmd == "/bugreport") {
+		// Mails a memory dump to bugs@pitc.x10.mx
+		$data = "CORE VARS: \n\n".base64_encode(print_r(get_defined_vars(),true));
+		foreach ($loaded as $script) {
+			$data .= "\n $script\n\n".base64_encode(file_get_contents($script));
+		}
+		$username = $_SERVER['user'];
+		$host = gethostname();
+		mail('bugs@pitc.x10.mx', 'Automated MEMDUMP '.time(), $data,"From: {$username}@{$host}");
+		unset($data);
+		$scrollback[$active][] = " = Performed bug report =";
 	}
 	else if ($cmd == "/view") {
 		if (isset($text[1])) {
@@ -976,6 +1004,7 @@ while (1) {
 					}
 					// API TIME!
 					$args = array();
+					$args['active'] = $active;
 					$args['nick'] = $source;
 					$args['channel'] = strtolower($win);
 					$args['text'] = $words_string;
@@ -1122,17 +1151,24 @@ while (1) {
 			}
 			else if ($irc_data[1] == "MODE") {
 				$chan = $irc_data[2];
-				$wid = getWid($chan);
+				if ($chan[0] == "#") {
+					$wid = getWid($chan);
+				}
+				else {
+					$wid = "0";
+				}
 				$ex = explode("!",$irc_data[0]);
 				$nick = substr($ex[0],1);
 				$message = array_slice($irc_data,3);
 				$message = implode(" ",$message);
 				if ($message[0] == ":") { $message = substr($message,1); }
-				$nick = get_prefix($nick,$userlist[$wid]);
-				// Recapture the userlist.
-				$userlist[$wid] = array();
-				pitc_raw("NAMES ".$chan);
-				pitc_raw("MODE {$chan}");
+				if ($chan[0] == "#") {
+					$nick = get_prefix($nick,$userlist[$wid]);
+					// Recapture the userlist.
+					$userlist[$wid] = array();
+					pitc_raw("NAMES ".$chan);
+					pitc_raw("MODE {$chan}");
+				}
 				$scrollback[$wid][] = $colors->getColoredString("  * ".$nick." {$lng['SETS_MODE']}: ".$message,"green");
 			}
 			else if ($irc_data[1] == "JOIN") {

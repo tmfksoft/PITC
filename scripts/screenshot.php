@@ -8,7 +8,7 @@
 */
 
 if (function_exists("gd_info") && $version >= "1.1") {
-	$api->log(" = PITC Screenshots Loaded! =",0);
+	//$api->log(" = PITC Screenshots Loaded! =",0);
 	// If GD is installed we will work.
 	if (!file_exists("screenshots")) {
 		mkdir("screenshots");

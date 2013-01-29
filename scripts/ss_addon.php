@@ -2,13 +2,13 @@
 
 if (function_exists("do_screenshot")) {
 	$api->addCommand("ssa","ssu_do");
-	$api->log(" = PrintScreen.it Addon Loaded =",0);
+	//$api->log(" = PrintScreen.it Addon Loaded =",0);
 	// Adds Clipboard! :D
 	$api->addCommand("paste","clip_paste");
 	$clipboard = "";
 }
 else {
-	$api->log(" = Screenshot script by Thomas Edwards has not been loaded! =");
+	//$api->log(" = Screenshot script by Thomas Edwards has not been loaded! =");
 }
 function clip_set($data) {
 	global $clipboard;
