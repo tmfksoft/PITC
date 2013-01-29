@@ -13,7 +13,7 @@ function drawWindow($window,$input = true,$return = false) {
 		shutdown("[drawWindow] Script supplied invalid (scrollback) for window ".$window." @ Line ".__LINE__."\n");
 	}
 	
-	$data = "\n";
+	$data = chr(12)."\n";
 	if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN') {
 		$shell_cols = exec('tput cols');
 		$shell_rows = exec('tput lines');
