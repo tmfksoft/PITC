@@ -399,5 +399,28 @@ class channel {
 			return false;
 		}
 	}
+	public function ison($user,$chan = false) {
+		global $userlist,$active,$api;
+		/* Derived from GetPrefix() */
+		/* Used in the core, dont remove or edit! */
+		if ($chan == FALSE) { $wid = $active; } else { $wid = getwid($chan); }
+		$nicks = $userlist[$wid];
+		if ($nicks > 0) {
+			$nick = strtolower($user);
+			$nicknames = array();
+			foreach ($nicks as $n) { $nicknames[] = trim(strtolower($n),"~&@%+"); }
+			$match = strtolower($user);
+			$ret = "PITC".array_search($match,$nicknames);
+			if ($ret != "PITC") {
+				return True;
+			}
+			else {
+				return False;
+			}
+		}
+		else {
+			return False;
+		}
+	}
 }
 ?>

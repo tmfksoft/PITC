@@ -404,7 +404,7 @@ while (1) {
 		}
 	}
 	else if ($cmd == "/version") {
-		$scrollback['0'][] = " = You are running PITC v{$version} =";
+		$scrollback['0'][] = " = You are running PITC v".$version." =";
 	}
 	else if ($cmd == "/refresh") {
 		if (isset($text[1])) {
@@ -502,6 +502,19 @@ while (1) {
 	}
 	else if ($cmd == "/donk") {
 		$scrollback[$active][] = " = DONK! = ";
+	}
+	else if ($cmd == "/eval") {
+		$code = implode(" ",array_slice($text, 1));
+		ob_start();
+		@eval("?>".$code."<?");
+		$ret = ob_get_clean();
+		$ret = explode("\n",$ret);
+		foreach ($ret as $message) {
+			$scrollback[$active][] = " [PHP] ".$message;
+		}
+		unset($code);
+		unset($ret);
+		unset($eval);
 	}
 	else if ($cmd == "/lang") {
 		$language = strtolower($text[1]);
