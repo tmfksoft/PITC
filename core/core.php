@@ -8,7 +8,7 @@
  */
  
 // One line you may want to tweak.
-$refresh = "5000";
+$refresh = "15000";
 
 /*
  * You can tweak the refresh from within PITC to find a suitable speed.
@@ -654,6 +654,7 @@ while (1) {
 			$scrollback[$active][] = " = {$lng['CONN_TO']} ".$text[1];
 			$address = $text[1];
 		}
+		drawWindow(0,false);
 		$_PITC['address'] = $address;
 		$address = explode(":",$address);
 		if (isset($address[1]) && is_numeric($address[1])) { $port = $address[1]; }
@@ -662,10 +663,12 @@ while (1) {
 		$ssl = false;
 		if ($port[0] == "+") { $ssl = true; }
 		$sid = connect($_CONFIG['nick'],$address[0],$port,$ssl,$password);
-		stream_set_blocking($sid, 0);
 		if (!$sid) {
 			$scrollback[$active][] = $lng['CONN_ERROR'];
 			unset($sid);
+		}
+		else {
+			stream_set_blocking($sid, 0);
 		}
 	}
 	else if ($cmd == "") {
@@ -1295,6 +1298,9 @@ while (1) {
 }
 function pitcError($errno, $errstr, $errfile, $errline) {
 	global $active,$scrollback;
-	$scrollback[$active][] = "PITC PHP Error: (Line ".$errline." called at ".__LINE__.") [$errno] $errstr in $errfile";
+	// Dirty fix to supress connection issues for now.
+	if ($errline != 171) {
+		$scrollback[$active][] = "PITC PHP Error: (Line ".$errline." called at ".__LINE__.") [$errno] $errstr in $errfile";
+	}
 }
 ?>

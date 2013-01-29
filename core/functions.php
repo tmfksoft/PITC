@@ -166,9 +166,9 @@ function shutdown($message = "Shutdown") {
 }
 
 function connect($nick,$address,$port,$ssl = false,$password = false) {
-	global $_CONFIG,$domain,$sasl;
+	global $_CONFIG,$domain,$sasl,$api;
 	if ($ssl) { $address = "ssl://".$address; }
-	$fp = @fsockopen($address,$port, $errno, $errstr, 30) or pitcError(0, "Error connecting.", "PITCCORE", "CORE+121");
+	$fp = @fsockopen($address,$port, $errno, $errstr, 5);
 	if ($fp) {
 		if (isset($_CONFIG['sasl'])) {
 			if (strtolower($_CONFIG['sasl']) == "y") { pitc_raw("CAP REQ :sasl",$fp); }
@@ -180,6 +180,7 @@ function connect($nick,$address,$port,$ssl = false,$password = false) {
 		return $fp;
 	}
 	else {
+		$api->pecho(" = {$errstr} =");
 		return false;
 	}
 }
