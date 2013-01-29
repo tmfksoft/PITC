@@ -8,7 +8,7 @@
  */
  
 // One line you may want to tweak.
-$refresh = "15000";
+$refresh = "5000";
 
 /*
  * You can tweak the refresh from within PITC to find a suitable speed.
@@ -664,7 +664,7 @@ while (1) {
 		if ($port[0] == "+") { $ssl = true; }
 		$sid = connect($_CONFIG['nick'],$address[0],$port,$ssl,$password);
 		if (!$sid) {
-			$scrollback[$active][] = $lng['CONN_ERROR'];
+			$scrollback[$active][] = " = {$lng['CONN_ERROR']} =";
 			unset($sid);
 		}
 		else {
