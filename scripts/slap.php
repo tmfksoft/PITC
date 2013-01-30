@@ -28,6 +28,5 @@ function topic_funct($args) {
 	$api->msg($cn,"Usercount in {$cn} is: ".$count);
 	$ison = $chan_api->ison("Fudgie",$cn);
 	if ($ison) { $api->msg($cn,"Fudgie is in {$cn}"); } else { $api->msg($cn,"Fudgie is NOT in {$cn}");}
-	$api->msg($cn,$ison);
 }
 ?>

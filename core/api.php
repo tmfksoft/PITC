@@ -113,7 +113,7 @@ class pitcapi {
 		}
 	}
 	public function msg($channel = false,$text = false) {
-		global $scrollback, $sid, $cnick,$cserver;
+		global $scrollback, $sid, $cnick;
 		if (!$channel) {
 			$scrollback[$cserver]['0'][] = " ERROR. Missing TEXT in function MSG";
 		}
@@ -123,10 +123,10 @@ class pitcapi {
 		else {
 			if ($sid) {
 				fputs($sid,"PRIVMSG ".$channel." :".$text."\n");
-				$scrollback[$cserver][getWid($channel)][] = " <".$cnick."> ".$text;
+				$scrollback[getWid($channel)][] = " <".$cnick."> ".$text;
 			}
 			else {
-				$scrollback[$cserver]['0'][] = " = You are not connected to IRC! =";
+				$scrollback['0'][] = " = You are not connected to IRC! =";
 			}
 		}
 	}

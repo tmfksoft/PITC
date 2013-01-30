@@ -919,7 +919,7 @@ while (1) {
 				$users = array_slice($irc_data,5);
 				$chan = $irc_data[4];
 				$users[0] = substr($users[0],1);
-				$scrollback[getWid($chan)][] = $colors->getColoredString(" [ ".implode(" ",uListSort($users))." ]","cyan");
+				//$scrollback[getWid($chan)][] = $colors->getColoredString(" [ ".implode(" ",uListSort($users))." ]","cyan");
 				$userlist[getWid($chan)] = array_merge($userlist[getWid($chan)],$users);
 				$userlist[getWid($chan)] = uListSort($userlist[getWid($chan)]);
 				array_values($userlist[getWid($chan)]);
@@ -1071,13 +1071,30 @@ while (1) {
 					$nnick = $irc_data[2];
 				}
 				if ($nick != $cnick) {
+					// someone changed their nick, Lets return the shizzle for them.
 					$string = $colors->getColoredString("  * ".$nick." {$lng['NICK_OTHER']} ".$nnick, "green");
 				}
 				else {
 					$string = $colors->getColoredString("  * {$lng['NICK_SELF']} ".$nnick, "green");
 					$cnick = $nnick;
 				}
-				$scrollback[$active][] = $string;
+				// Shiny code, Should display nick changes only in channels that user is in.
+				// Could do with being shortened to be honest.
+				foreach ($windows as $channel) {
+					if ($channel[0] == "#" || $channel == $nick) {
+						if ($channel[0] == "#") {
+							$ison = $chan_api->ison($nick,$channel);
+							if ($ison) { pitc_raw("NAMES ".$channel); }
+						}
+						else {
+							$ison = true;
+						}
+						if ($ison) {
+							$wid = getwid($channel);
+							$scrollback[$wid][] = $string;
+						}
+					}
+				}
 			}
 			else if ($irc_data[0] == "PING") {
 				// Do nothing.
@@ -1297,7 +1314,26 @@ while (1) {
 					// Not me.
 					$message = array_slice($irc_data, 2);
 					$message = substr(implode(" ",$message),1);
-					$scrollback[$active][] = $colors->getColoredString("  * ".$nick." (".$ex[1].") {$lng['QUIT']} (".$message.")","blue");
+					$string = $colors->getColoredString("  * ".$nick." (".$ex[1].") {$lng['QUIT']} (".$message.")","blue");
+					
+					$matches = 0;
+					foreach ($windows as $channel) {
+						if ($channel[0] == "#" || $channel == $nick) {
+							if ($channel[0] == "#") {
+								$ison = $chan_api->ison($nick,$channel);
+								if ($ison) { pitc_raw("NAMES ".$channel); }
+							}
+							else {
+								$ison = true;
+							}
+							if ($ison) {
+								$wid = getwid($channel);
+								$scrollback[$wid][] = $string;
+								$matches++;
+							}
+						}
+					}
+					if ($matches == 0) { $scrollback[0] = $string; }
 				}
 			}
 			else {
