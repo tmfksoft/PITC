@@ -38,6 +38,7 @@ $previous = "";
 $rawlog = array();
 $ctcps = array();
 $error_log = array();
+$timers = array();
 
 $_DEBUG = array(); // Used to set global vars for /dump from within functions.
 $loaded = array(); // Loaded scripts.
@@ -211,6 +212,7 @@ if ($latest != false && $latest > $version) {
 	// Init our API's
 	$api = new pitcapi();
 	$chan_api = new channel();
+	$timer = new timer();
 	// Load any core scripts.
 	include("colours.php");
 	$colors = new Colors(); // Part of Colours Script
@@ -1343,6 +1345,8 @@ while (1) {
 			}
 		}
 	}
+	// Check if any timers are being called.
+	$timer->checktimers();
 	usleep($refresh);
 }
 function pitcError($errno, $errstr, $errfile, $errline) {

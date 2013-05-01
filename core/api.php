@@ -423,4 +423,114 @@ class channel {
 		}
 	}
 }
+class timer {
+	public function addtimer($delay = false,$rep = false,$function = false ,$args = false) {
+		global $timers,$scrollback;
+		if ($delay == false | $function == false) {
+			if (!$delay) {
+				$scrollback['0'][] = " ERROR. Missing DELAY in function TIMER->ADDTIMER";
+			}
+			else {
+				$scrollback['0'][] = " ERROR. Missing FUNCTION in function TIMER->ADDTIMER";
+			}
+		}
+		else {
+			$dat = array();
+			$dat['delay'] = $delay;
+			$dat['rep'] = $rep;
+			$dat['function'] = $function;
+			$dat['args'] = $args;
+			$dat['next'] = $this->calcnext($delay);
+			$timers[] = $dat;
+		}
+	}
+	public function deltimer($id) {
+		// Deletes a timer with the specified ID.
+		global $timers,$scrollback;
+		if (!$id) {
+			$scrollback['0'][] = " ERROR. Missing ID in function TIMER->DELTIMER";
+		}
+		else {
+			if (isset($timers[$id])) {
+				unset($timers[$id]);
+				$scrollback['0'][] = " Timer {$id} Removed.";
+				return true;
+			}
+			else {
+				$scrollback['0'][] = " Timer {$id} not found!";
+				return false;
+			}
+		}
+	}
+	public function checktimers() {
+		global $timers;
+		foreach ($timers as $id => $tmr) {
+			if ($tmr['next'] == time()) {
+				// Trigger timer.
+				call_user_func($tmr['function'], $tmr['args']);
+				// Update Next Call.
+				$timers[$id]['next'] = $this->calcnext($tmr['delay']);
+				if ($tmr['rep'] != false) {
+					// Not continuous.
+					$timers[$id]['rep']--;
+					if ($timers[$id]['rep'] == 0) {
+						// Remove.
+						echo "Unset timer {$id} running funct '{$tmr['function']}'\n";
+						unset($timers[$id]);
+					}
+				}
+			}
+		}
+	}
+	public function texttosec($text) {
+		global $text;
+		// Returns the contents of $text in seconds, e.g. 1m = 60 Seconds
+		if (!$text) {
+			$scrollback['0'][] = " ERROR. Missing TEXT in function TIMER->TEXTOSEC";
+		}
+		else {
+		if (is_numeric($text)) {
+			return $text;
+		}
+		else {
+			$text = strtolower($text);
+			$num = substr($text, 0, -1);
+			if (substr($text,-1) === "s") {
+				// Seconds
+				return $num;
+			}
+			elseif (substr($text,-1) === "m") {
+				// Mins
+				return (60*$num);
+			}
+			elseif (substr($text,-1) === "h") {
+				// Hours
+				return ((60*$num)*60);
+			}
+			elseif (substr($text,-1) === "d") {
+				// Days?!
+				return (((60*$num)*60)*24);
+			}
+			elseif (substr($text,-1) === "w") {
+				// Weeks - Really now?
+				return ((((60*$num)*60)*24)*7);
+			}
+			else {
+				// Just seconds then.
+				return $num;
+			}
+			
+		}
+		}
+	}
+	private function calcnext($text) {
+		// Calculated the next time a timer will go off.
+		$sec = 0;
+		$time = explode(" ",$text);
+		foreach ($time as $t) {
+			$sec += $this->texttosec($t);
+		}
+		return time()+$sec;
+	}
+}
 ?>
