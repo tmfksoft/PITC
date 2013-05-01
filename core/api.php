@@ -445,7 +445,7 @@ class timer {
 			$timers[] = $dat;
 			$scrollback['0'][] = " Added Timer with delay {$delay}";
 			end($timers); 
-			return &$timers[key($timers)]; 
+			return $timers[key($timers)]; 
 		}
 	}
 	public function deltimer($id) {
