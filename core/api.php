@@ -442,6 +442,7 @@ class timer {
 			$dat['args'] = $args;
 			$dat['next'] = $this->calcnext($delay);
 			$timers[] = $dat;
+			$scrollback['0'][] = " Added Timer with delay {$delay}";
 		}
 	}
 	public function deltimer($id) {
@@ -483,7 +484,7 @@ class timer {
 		}
 	}
 	public function texttosec($text) {
-		global $text;
+		global $scrollback;
 		// Returns the contents of $text in seconds, e.g. 1m = 60 Seconds
 		if (!$text) {
 			$scrollback['0'][] = " ERROR. Missing TEXT in function TIMER->TEXTOSEC";
@@ -493,6 +494,8 @@ class timer {
 			return $text;
 		}
 		else {
+			var_dump($text);
+			die();
 			$text = strtolower($text);
 			$num = substr($text, 0, -1);
 			if (substr($text,-1) === "s") {
