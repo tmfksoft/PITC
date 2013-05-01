@@ -433,6 +433,7 @@ class timer {
 			else {
 				$scrollback['0'][] = " ERROR. Missing FUNCTION in function TIMER->ADDTIMER";
 			}
+			return false;
 		}
 		else {
 			$dat = array();
@@ -443,6 +444,8 @@ class timer {
 			$dat['next'] = $this->calcnext($delay);
 			$timers[] = $dat;
 			$scrollback['0'][] = " Added Timer with delay {$delay}";
+			end($timers); 
+			return &$timers[key($timers)]; 
 		}
 	}
 	public function deltimer($id) {
@@ -494,8 +497,6 @@ class timer {
 			return $text;
 		}
 		else {
-			var_dump($text);
-			die();
 			$text = strtolower($text);
 			$num = substr($text, 0, -1);
 			if (substr($text,-1) === "s") {
