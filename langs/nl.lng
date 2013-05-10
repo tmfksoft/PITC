@@ -1,0 +1,74 @@
+Dutch version Andy "ChUcKst3r" Breton
+
+// Missing Files Messages
+$lng['MSNG_API'] = "Ontbrekend kern bestand: api.php, Heb je ALLE bestanden uitgepakt?";
+
+// Update Messages.
+$lng['CHECKING_LATEST'] = "Controleren op laatste versie.";
+$lng['NEWER'] = "Er is een nieuwere versie van PITC beschikbaar!";
+$lng['RUNUPDATE'] = "Voer het update script uit om te updaten!";
+
+// Auto Load
+$lng['AUTO_ERROR'] = "ERROR Automagisch Laden";
+$lng['NOSUCHFILE'] = "bestand niet gevonden!";
+
+// Misc
+$lng['SCREEN'] = "Je wordt weergegeven op het SCREEN! Ik dacht dat je dat even wou weten!";
+$lng['SCREEN_D_1'] = "Afwezig. Automatisch afwezigheids bericht doordat het SCREEN is afgesloten.";
+$lng['SCREEN_D_2'] = "Afgesloten Beeldscherm gedetecteerd!";
+$lng['CONF_SAVE'] = "Configuratiewijzigingen opgeslagen.";
+
+// Memory Dumping
+$lng['MEM_DMPG'] = "Dumpen van variabelen in het geheugen naar";
+$lng['MEM_DUMPED'] = "Alle variabelen gedumpt naar";
+$lng['MEM_ERROR'] = "Fout bij het dumpen van variabelen in het geheugen naar";
+
+// View Command
+$lng['VIEW_ALREADY'] = "Je bekijkt reeds";
+$lng['VIEWING'] = "Bekijken";
+$lng['VIEW_NO'] = "Geen dergelijk venster!";
+
+// General Messages
+$lng['DISCONNECTED'] = "IRC verbinding verbroken. Gebruik /connect";
+$lng['RECONNECT_TO'] = "opnieuw verbinding maken met";
+$lng['RECONNECT'] = "om opnieuw te verbinden.";
+$lng['NOT_CONN'] = "Niet verbonden met IRC! Gebruik /exit om af te sluiten!";
+$lng['DEF_QUIT'] = "Tot Ziens! Voor nu!";
+$lng['NO_OPEN'] = "Geen kanalen open.";
+$lng['PARTING'] = "Verlaat";
+$lng['CHANGED'] = "veranderd naar";
+$lng['NO_CONFIG'] = "U kan geen configuraties wijzigen als je verbonden bent. Verbreek verbinding met /quit";
+$lng['ERROR_SCRIPT'] = "FOUT! Script-bestand niet gevonden!";
+$lng['USE_EXIT'] = "Gebruik /exit om PITC af te sluiten";
+$lng['AUTO_CONN'] = "Automatisch verbinden met IRC!";
+$lng['CONN_DEF'] = "Verbinden met standaard server";
+$lng['CONN_TO'] = "Verbinden met"; // This line and the above are intended to cater for grammar differences. If Any.
+$lng['CONN_ERROR'] = "Fout bij verbinden met IRC Server.";
+$lng['USAGE'] = "Gebruik";
+$lng['STATUS'] = "Status";
+$lng['WINDOW'] = "venster";
+$lng['STATUS_NO'] = "Status venster kan niet gesloten worden!";
+$lng['STATUS_TLK'] = "Je kunt niet praten in het status venster!";
+$lng['WINDOWS_1'] = "Er zijn";
+$lng['WINDOWS_2'] = "open vensters.";
+$lng['WINDOWS_3'] = "Het actieve venster is";
+$lng['QUERY_CHAN'] = "Om te praten in een kanaal /join het en praat!";
+$lng['QUERY_OPEN'] = "Prive venster met";
+$lng['CMD_UK'] = "Onbekend Commando!";
+$lng['MSG_IN'] = "Bericht in Venster";
+$lng['FROM'] = "van";
+$lng['HIGHLIGHT'] = "heeft u gehighlighted in";
+
+// IRC Messages - This part can be left in its current form if you wish.
+$lng['NICK_OTHER'] = "is nu bekend als";
+$lng['NICK_SELF'] = "U bent nu bekend als";
+$lng['TOPIC_CHANGE'] = "wijzigd het topic naar";
+$lng['TOPIC_IS'] = "Topic is";
+$lng['TOPIC_BY'] = "Gezet door";
+$lng['SETS_MODE'] = "zet mode";
+$lng['JOIN_SELF'] = "Binnengekomen in";
+$lng['JOIN_OTHER'] = "is binnengekomen in";
+$lng['PARTED'] = "verlaat";
+$lng['KICK_OTHER'] = "is weggeschopt door";
+$lng['KICK_SELF'] = "heeft u weggeschopt uit";
+$lng['QUIT'] = "Afgesloten";
