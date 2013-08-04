@@ -78,6 +78,13 @@ else {
 // Init some Variables.
 $version = "1.3"; // Do not change this!
 
+// Lets make sure our user dir exists.
+if (!file_exists($_SERVER['HOME']."/.pitc")) {
+	mkdir($_SERVER['HOME']."/.pitc");
+	mkdir($_SERVER['HOME']."/.pitc/scripts");
+	shell_exec("cp -rf /usr/include/pitc/scripts/* {$_SERVER['HOME']}/.pitc/scripts/");
+}
+
 if (file_exists("/usr/include/pitc/core/functions.php")) {
 	include("/usr/include/pitc/core/functions.php");
 }

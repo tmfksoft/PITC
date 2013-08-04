@@ -19,6 +19,12 @@ of version 5 or above.
 Most VPS' or Mac systems come with PHP preinstalled
 so users needn't worry.
 
+Installation Guide
+------------------
+PITC is now simple to install and installation will make PITC
+useable by every user on your system along with their own configurations.
+Simply run install.sh under root/sudo.
+
 What Operating Systems has PITC been tested on?
 -----------------------------------------------
 PITC has been tested on Ubuntu, Debian, Mac OSX
