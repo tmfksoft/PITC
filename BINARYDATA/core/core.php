@@ -76,28 +76,28 @@ else {
 }
 
 // Init some Variables.
-$version = "1.2"; // Do not change this!
+$version = "1.3"; // Do not change this!
 
-if (file_exists($_SERVER['PWD']."/core/functions.php")) {
-	include($_SERVER['PWD']."/core/functions.php");
+if (file_exists("/usr/include/pitc/core/functions.php")) {
+	include("/usr/include/pitc/core/functions.php");
 }
 else {
 	die("Missing Functions.php! PITC CANNOT Function without this.");
 }
 
-if (file_exists($_SERVER['PWD']."/core/config.php")) {
-	include($_SERVER['PWD']."/core/config.php");
+if (file_exists("/usr/include/pitc/core/config.php")) {
+	include("/usr/include/pitc/core/config.php");
 }
 else {
 	shutdown("ERROR Loading Config.php!\n");
 }
 
-if (!file_exists($_SERVER['PWD']."/core/config.cfg")) {
+if (!file_exists($_SERVER['HOME']."/.pitc/core/config.cfg")) {
 	stream_set_blocking(STDIN, 1);
 	run_config();
 	sleep(1);
 	stream_set_blocking(STDIN, 0);
-	drawwindow(0);
+	/* drawwindow(0); Not needed */
 }
 
 // Load the config and language pack.
@@ -109,12 +109,12 @@ else {
 	$language = "en";
 }
 $lng = array();
-if (file_exists("langs/".$language.".lng")) {
-	eval(file_get_contents("langs/".$language.".lng"));
+if (file_exists("/usr/include/pitc/langs/".$language.".lng")) {
+	eval(file_get_contents("/usr/include/pitc/langs/".$language.".lng"));
 }
 else {
-	if (file_exists("langs/en.lng")) {
-		eval(file_get_contents("langs/en.lng"));
+	if (file_exists("/usr/include/pitc/langs/en.lng")) {
+		eval(file_get_contents("/usr/include/pitc/langs/en.lng"));
 	}
 	else {
 		shutdown("Unable to load Specified Language or English Language!\n");
@@ -131,20 +131,20 @@ $text = "";
 $chan_modes = array();
 $chan_topic = array();
 
-if (file_exists($_SERVER['PWD']."/core/api.php")) {
-	include($_SERVER['PWD']."/core/api.php");
+if (file_exists("/usr/include/pitc/core/api.php")) {
+	include("/usr/include/pitc/core/api.php");
 }
 else {
 	shutdown("{$lng['MSNG_API']}\n");
 }
 
 // ASCII Feature?!
-if (file_exists($_SERVER['PWD']."/core/ascii.php")) {
-	include($_SERVER['PWD']."/core/ascii.php");
+if (file_exists("/usr/include/pitc/core/ascii.php")) {
+	include("/usr/include/pitc/core/ascii.php");
 }
 // DNS issue. quick fix for now.
 if (!is_connected()) {
-	$text = ascii_read_file($_SERVER['PWD']."/core/pitc_ascii");
+	$text = ascii_read_file("/usr/include/pitc/core/pitc_ascii");
 	$error_log[] = "[ASCII] No internet connection, loading local file.";
 }
 else {
@@ -217,11 +217,11 @@ if ($latest != false && $latest > $version) {
 	include("colours.php");
 	$colors = new Colors(); // Part of Colours Script
 	// Load auto scripts.
-	if (file_exists($_SERVER['PWD']."/scripts/autoload")) {
-		$scripts = explode("\n",file_get_contents($_SERVER['PWD']."/scripts/autoload"));
+	if (file_exists($_SERVER['HOME']."/.pitc/scripts/autoload")) {
+		$scripts = explode("\n",file_get_contents($_SERVER['HOME']."/.pitc/scripts/autoload"));
 		for ($x=0;$x != count($scripts);$x++) {
 			if ($scripts[$x][0] != ";") {
-				$script = $_SERVER['PWD']."/scripts/".trim($scripts[$x]);
+				$script = $_SERVER['HOME']."/.pitc/scripts/".trim($scripts[$x]);
 				if (file_exists($script)) {
 					include_once($script);
 					$loaded[] = $script;

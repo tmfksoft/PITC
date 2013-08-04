@@ -1,0 +1,4 @@
+rm -rf ~/.pitc
+rm /usr/bin/pitc
+rm -rf /usr/include/pitc
+rm /usr/bin/pitc_remove

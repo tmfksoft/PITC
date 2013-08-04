@@ -1,7 +1,7 @@
 <?php
 function run_config() {
 	global $windows,$scrollback,$active;
-	if (file_exists($_SERVER['PWD']."/core/config.cfg")) { $default = load_config(); } else { $default = false; }
+	if (file_exists($_SERVER['HOME']."/.pitc/config.cfg")) { $default = load_config(); } else { $default = false; }
 	// Load Config script.
 	$windows['1'] = "PITC Config";
 	$scrollback['1'][] = "PITC Configuration.";
@@ -35,7 +35,8 @@ function run_config() {
 	$scrollback['1'][] = "Please wait while your configuration is saved...";
 	drawwindow(1);
 
-	file_put_contents($_SERVER['PWD']."/core/config.cfg",implode("\n",$config));
+	file_put_contents($_SERVER['HOME']."/.pitc/config.cfg",implode("\n",$config));
+	//save_config($config);
 
 	$scrollback['1'][] = "Done!";
 	sleep(1);
@@ -44,8 +45,8 @@ function run_config() {
 }
 function load_config() {
 	global $scrollback;
-	if (file_exists($_SERVER['PWD']."/core/config.cfg")) {
-		$_CONFIG = explode("\n",file_get_contents($_SERVER['PWD']."/core/config.cfg"));
+	if (file_exists($_SERVER['HOME']."/.pitc/config.cfg")) {
+		$_CONFIG = explode("\n",file_get_contents($_SERVER['HOME']."/.pitc/config.cfg"));
 		$x = 0;
 		while($x != count($_CONFIG)) {
 			$data = explode("=",$_CONFIG[$x]);
@@ -100,9 +101,13 @@ function config_prompt($default = false,$item,$alias,$required = true) {
 	}
 }
 function save_config($array) {
-	$config = array();
-	foreach ($array as $x => $data) { $config[] = $x."=".urlencode($data); }
-	file_put_contents($_SERVER['PWD']."/core/config.cfg",implode("\n",$config));
+	error_reporting(-1);
+	//$config = array();
+	//foreach ($array as $x => $data) { $config[] = $x."=".urlencode($data); }
+	$r = file_put_contents($_SERVER['HOME']."/.pitc/config.cfg",implode("\n",$array));
+	if (!$r) {
+		die("VITAL ERROR! Unable to save configuration file.\b");
+	}
 	return true;
 }
 ?>

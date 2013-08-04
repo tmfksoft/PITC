@@ -6,6 +6,7 @@ function drawWindow($window,$input = true,$return = false) {
 	
 	if (!isset($windows[$window])) {
 		var_dump($windows);
+		var_dump(debug_backtrace());
 		shutdown("Script supplied invalid window ID\n");
 	}
 	if (!isset($scrollback[$window])) {
@@ -383,7 +384,7 @@ function data_get($url = false) {
 	}
 }
 function is_connected() {
-    $connected = @fsockopen("google.com",80); //website and port
+    $connected = @fsockopen("pitc.x10.mx",80); //website and port
     if ($connected) {
         $is_conn = true; //action when connected
         fclose($connected);

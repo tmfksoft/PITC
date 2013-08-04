@@ -1,0 +1,9 @@
+cp pitc /usr/bin
+mkdir ~/.pitc
+cp -R USERDATA/scripts ~/.pitc
+mkdir /usr/include/pitc
+cp -R BINARYDATA/* /usr/include/pitc
+cp uninstall /usr/bin/pitc_remove
+chmod +x /usr/bin/pitc
+chmod +x /usr/bin/pitc_remove
+echo Done.
